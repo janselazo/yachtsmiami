@@ -18,8 +18,10 @@ export function useScrollVideoMp4({ src }: UseScrollVideoMp4Options) {
 
     let cancelled = false;
 
-    const onReady = () => {
-      if (cancelled || !Number.isFinite(video.duration)) return;
+    const markReady = () => {
+      if (cancelled || !Number.isFinite(video.duration) || video.duration <= 0) {
+        return;
+      }
       durationRef.current = video.duration;
       video.pause();
       video.currentTime = 0;
@@ -35,15 +37,16 @@ export function useScrollVideoMp4({ src }: UseScrollVideoMp4Options) {
     video.muted = true;
     video.playsInline = true;
     video.preload = "auto";
-    video.src = src;
     video.load();
 
-    video.addEventListener("loadedmetadata", onReady);
+    video.addEventListener("loadedmetadata", markReady);
+    video.addEventListener("loadeddata", markReady);
     video.addEventListener("error", onError);
 
     return () => {
       cancelled = true;
-      video.removeEventListener("loadedmetadata", onReady);
+      video.removeEventListener("loadedmetadata", markReady);
+      video.removeEventListener("loadeddata", markReady);
       video.removeEventListener("error", onError);
     };
   }, [src]);

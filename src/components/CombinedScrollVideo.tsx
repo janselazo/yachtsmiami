@@ -243,6 +243,7 @@ export function CombinedScrollVideo({
         <div className="hero-video-media">
           <video
             ref={videoRef}
+            src={homepageVideoSequence.src}
             muted
             playsInline
             preload="auto"

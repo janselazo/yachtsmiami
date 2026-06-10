@@ -113,6 +113,7 @@ export function ScrollVideoScene({
         <div className="hero-video-media">
           <video
             ref={videoRef}
+            src={video.src}
             muted
             playsInline
             preload="auto"
