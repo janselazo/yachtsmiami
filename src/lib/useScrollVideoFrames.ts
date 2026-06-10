@@ -51,7 +51,7 @@ export function useScrollVideoFrames({
   );
 
   const tryRenderCurrentFrame = useCallback(() => {
-    renderFrame(frameIndexRef.current);
+    return renderFrame(frameIndexRef.current);
   }, [renderFrame]);
 
   useEffect(() => {

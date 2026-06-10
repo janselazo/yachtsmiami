@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local ffmpeg source assets (not deployed)
+/video/
+/public/video/*-frames/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

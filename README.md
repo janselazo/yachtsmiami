@@ -1,13 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Clone & media assets
+## Deploy on Cloudflare Pages
 
-Video sources and scroll frames are stored in **Git LFS**. After cloning:
+In the Cloudflare Pages project settings:
 
-```bash
-git lfs install
-git lfs pull
-```
+| Setting | Value |
+|---------|-------|
+| **Build command** | `npm run build` |
+| **Build output directory** | `out` |
+| **Node.js version** | `20` (or latest LTS) |
+
+The site uses Next.js static export. Production videos live in `public/video/` only (`f3.mp4`, `p2.mp4`, `dolphin.mp4`). The local `video/` folder is for ffmpeg source files and is not deployed.
 
 ## Getting Started
 

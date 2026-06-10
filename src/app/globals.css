@@ -299,7 +299,8 @@ img {
 }
 
 .hero-video-media img,
-.hero-video-media canvas {
+.hero-video-media canvas,
+.hero-video-media video {
   position: absolute;
   inset: 0;
   height: 100%;
