@@ -2,15 +2,21 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Deploy on Cloudflare Pages
 
-In the Cloudflare Pages project settings:
+**Important:** Do not retry old failed deployments. Deploy the latest commit on `main` (`2f3eb68` or newer).
+
+In **Workers & Pages → your project → Settings → Builds & deployments**:
 
 | Setting | Value |
 |---------|-------|
+| **Framework preset** | Next.js (Static HTML Export) |
 | **Build command** | `npm run build` |
 | **Build output directory** | `out` |
-| **Node.js version** | `20` (or latest LTS) |
+| **Root directory** | `/` |
+| **Node.js version** | `20` |
 
-The site uses Next.js static export. Production videos live in `public/video/` only (`f3.mp4`, `p2.mp4`, `dolphin.mp4`). The local `video/` folder is for ffmpeg source files and is not deployed.
+Or match the repo `wrangler.toml` (`pages_build_output_dir = "./out"`).
+
+Production videos live in `public/video/` only. The local `video/` folder is gitignored and never deployed.
 
 ## Getting Started
 
