@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Clone & media assets
+
+Video sources and scroll frames are stored in **Git LFS**. After cloning:
+
+```bash
+git lfs install
+git lfs pull
+```
+
 ## Getting Started
 
 First, run the development server:
