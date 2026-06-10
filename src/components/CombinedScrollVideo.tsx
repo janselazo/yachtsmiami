@@ -4,9 +4,9 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { homepageVideoSequence } from "@/data/video-frames";
+import { homepageFrameSequence } from "@/data/video-frames";
 import { homepageVideoScroll } from "@/lib/combined-video-scroll";
-import { useScrollVideoMp4 } from "@/lib/useScrollVideoMp4";
+import { useScrollVideoFrames } from "@/lib/useScrollVideoFrames";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,6 +29,7 @@ export function CombinedScrollVideo({
 }: CombinedScrollVideoProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
   const sceneContentRef = useRef<HTMLDivElement>(null);
   const lineLightRef = useRef<HTMLSpanElement>(null);
@@ -39,12 +40,14 @@ export function CombinedScrollVideo({
   const sceneIntroRef = useRef<HTMLDivElement>(null);
 
   const {
-    videoRef,
-    isReady,
+    posterSrc,
+    posterVisible,
     loadError,
     updateFrameFromProgress,
-  } = useScrollVideoMp4({
-    src: homepageVideoSequence.src,
+  } = useScrollVideoFrames({
+    sequence: homepageFrameSequence,
+    pinRef,
+    canvasRef,
   });
 
   useGSAP(
@@ -241,22 +244,22 @@ export function CombinedScrollVideo({
         className="relative h-[100svh] w-full overflow-hidden bg-abyss"
       >
         <div className="hero-video-media">
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload="auto"
+          <img
+            src={posterSrc}
+            alt=""
             aria-hidden="true"
             className={`transition-opacity duration-300 ${
-              isReady ? "opacity-100" : "opacity-0"
+              posterVisible ? "opacity-100" : "opacity-0"
             }`}
           />
+
+          <canvas ref={canvasRef} aria-hidden="true" />
         </div>
 
         {loadError ? (
           <div className="absolute inset-0 flex items-center justify-center bg-ocean-deep/80 px-6 text-center text-sm text-cream-muted">
-            Hero video failed to load. Check that{" "}
-            <code className="mx-1 text-cream">/video/f3.mp4</code> is deployed.
+            Video frames failed to load. Run{" "}
+            <code className="mx-1 text-cream">npm run extract-f3-frames</code>.
           </div>
         ) : null}
 

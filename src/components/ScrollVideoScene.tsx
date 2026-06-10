@@ -4,15 +4,15 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { pinkYachtVideoSequence } from "@/data/video-frames";
-import { useScrollVideoMp4 } from "@/lib/useScrollVideoMp4";
+import { pinkYachtFrameSequence } from "@/data/video-frames";
+import { useScrollVideoFrames } from "@/lib/useScrollVideoFrames";
 import { animateSectionTypography, prefersReducedMotion } from "@/lib/section-motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
 type ScrollVideoSceneProps = {
   id?: string;
-  video?: typeof pinkYachtVideoSequence;
+  sequence?: typeof pinkYachtFrameSequence;
   eyebrow: string;
   title: string;
   titleAccent?: string;
@@ -20,11 +20,12 @@ type ScrollVideoSceneProps = {
   description: string;
   align?: "left" | "right";
   overlay?: "default" | "light" | "hero";
+  extractScript?: string;
 };
 
 export function ScrollVideoScene({
   id,
-  video = pinkYachtVideoSequence,
+  sequence = pinkYachtFrameSequence,
   eyebrow,
   title,
   titleAccent,
@@ -32,9 +33,11 @@ export function ScrollVideoScene({
   description,
   align = "left",
   overlay = "default",
+  extractScript = "npm run extract-p2-frames",
 }: ScrollVideoSceneProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
 
   const overlayClass =
@@ -45,12 +48,14 @@ export function ScrollVideoScene({
         : "scene-overlay";
 
   const {
-    videoRef,
-    isReady,
+    posterSrc,
+    posterVisible,
     loadError,
     updateFrameFromProgress,
-  } = useScrollVideoMp4({
-    src: video.src,
+  } = useScrollVideoFrames({
+    sequence,
+    pinRef,
+    canvasRef,
   });
 
   useGSAP(
@@ -81,7 +86,7 @@ export function ScrollVideoScene({
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: `+=${Math.round(video.scrollMultiplier * 100)}%`,
+          end: `+=${Math.round(sequence.scrollMultiplier * 100)}%`,
           pin: pin,
           scrub: 0.65,
           anticipatePin: 1,
@@ -96,7 +101,7 @@ export function ScrollVideoScene({
         ScrollTrigger.refresh();
       });
     },
-    { scope: sectionRef, dependencies: [video, updateFrameFromProgress, align] },
+    { scope: sectionRef, dependencies: [sequence, updateFrameFromProgress, align] },
   );
 
   return (
@@ -111,22 +116,22 @@ export function ScrollVideoScene({
         className="relative h-[100svh] w-full overflow-hidden bg-abyss"
       >
         <div className="hero-video-media">
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload="auto"
+          <img
+            src={posterSrc}
+            alt=""
             aria-hidden="true"
             className={`transition-opacity duration-300 ${
-              isReady ? "opacity-100" : "opacity-0"
+              posterVisible ? "opacity-100" : "opacity-0"
             }`}
           />
+
+          <canvas ref={canvasRef} aria-hidden="true" />
         </div>
 
         {loadError ? (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-ocean-deep/80 px-6 text-center text-sm text-cream-muted">
-            Scene video failed to load. Check that{" "}
-            <code className="mx-1 text-cream">{video.src}</code> is deployed.
+            Scene frames failed to load. Run{" "}
+            <code className="mx-1 text-cream">{extractScript}</code>.
           </div>
         ) : null}
 

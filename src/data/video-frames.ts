@@ -1,18 +1,7 @@
 import type { FrameSequence } from "@/lib/scroll-video-canvas";
 
-export const homepageVideoSequence = {
-  src: "/video/f3.mp4",
-  scrollMultiplier: 8,
-} as const;
-
-export const pinkYachtVideoSequence = {
-  src: "/video/p2.mp4",
-  scrollMultiplier: 4.5,
-} as const;
-
-/** @deprecated Scroll frames replaced by MP4 scrub on Cloudflare Pages */
 export const homepageFrameSequence = {
-  source: "F3.mp4",
+  source: "f3.mp4",
   basePath: "/video/f3-frames/frame_",
   extension: ".jpg",
   padLength: 4,
@@ -21,9 +10,8 @@ export const homepageFrameSequence = {
   scrollMultiplier: 8,
 } as const;
 
-/** @deprecated Scroll frames replaced by MP4 scrub on Cloudflare Pages */
 export const pinkYachtFrameSequence = {
-  source: "P2.mp4",
+  source: "p2.mp4",
   basePath: "/video/p2-frames/frame_",
   extension: ".jpg",
   padLength: 4,
@@ -32,10 +20,19 @@ export const pinkYachtFrameSequence = {
   scrollMultiplier: 4.5,
 } as const;
 
-/** @deprecated Use homepageFrameSequence */
+/** MP4 fallback paths (background / legacy) */
+export const homepageVideoSequence = {
+  src: "/video/f3.mp4",
+  scrollMultiplier: homepageFrameSequence.scrollMultiplier,
+} as const;
+
+export const pinkYachtVideoSequence = {
+  src: "/video/p2.mp4",
+  scrollMultiplier: pinkYachtFrameSequence.scrollMultiplier,
+} as const;
+
 export const heroFrameSequence = homepageFrameSequence;
 
-/** @deprecated Second-section video removed */
 export const signatureSceneFrameSequence = homepageFrameSequence;
 
 export function getHomepageFramePath(index: number): string {
