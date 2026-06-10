@@ -176,7 +176,7 @@ export function CombinedScrollVideo({
           start: "top top",
           end: `+=${Math.round(scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: 0.5,
+          scrub: 0.15,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => updateFrameFromProgress(self.progress),
@@ -271,7 +271,7 @@ export function CombinedScrollVideo({
             playsInline
             preload="auto"
             aria-hidden="true"
-            className={`h-full w-full object-cover transition-opacity duration-700 ${
+            className={`h-full w-full object-cover ${
               isReady ? "opacity-100" : "opacity-70"
             }`}
           />

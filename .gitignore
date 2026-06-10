@@ -39,6 +39,8 @@ yarn-error.log*
 # local ffmpeg source assets (not deployed)
 /video/
 /public/video/*-frames/
+/public/video/*-backup.mp4
+/public/video/*-scrub.mp4
 
 # typescript
 *.tsbuildinfo

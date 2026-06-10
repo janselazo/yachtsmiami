@@ -110,7 +110,7 @@ export function ScrollVideoScene({
           start: "top top",
           end: `+=${Math.round(video.scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: 0.5,
+          scrub: 0.15,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => mapProgressToFrames(self.progress),
@@ -193,7 +193,7 @@ export function ScrollVideoScene({
             playsInline
             preload="auto"
             aria-hidden="true"
-            className={`h-full w-full object-cover transition-opacity duration-700 ${
+            className={`h-full w-full object-cover ${
               isReady ? "opacity-100" : "opacity-70"
             }`}
           />

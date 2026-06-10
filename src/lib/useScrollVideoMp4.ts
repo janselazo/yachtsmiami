@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+const SCRUB_FPS = 30;
+const MIN_SEEK_DELTA = 1 / SCRUB_FPS;
+
 type UseScrollVideoMp4Options = {
   src: string;
   scrollTriggerId?: string;
@@ -25,6 +28,11 @@ function seekVideo(video: HTMLVideoElement, time: number) {
   video.currentTime = clamped;
 }
 
+function progressToTime(progress: number, duration: number) {
+  const frame = Math.round(Math.max(0, Math.min(1, progress)) * duration * SCRUB_FPS);
+  return frame / SCRUB_FPS;
+}
+
 export function useScrollVideoMp4({
   src,
   scrollTriggerId,
@@ -36,6 +44,9 @@ export function useScrollVideoMp4({
   const isReadyRef = useRef(false);
   const onReadyRef = useRef(onReady);
   const scrollTriggerIdRef = useRef(scrollTriggerId);
+  const pendingProgressRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const lastTargetRef = useRef<number | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
@@ -44,16 +55,37 @@ export function useScrollVideoMp4({
     scrollTriggerIdRef.current = scrollTriggerId;
   }, [onReady, scrollTriggerId]);
 
-  const updateFrameFromProgress = useCallback((progress: number) => {
+  const applyProgress = useCallback((progress: number) => {
     const video = videoRef.current;
     const duration = durationRef.current;
     if (!video || !isReadyRef.current || !duration) return;
 
-    const target = Math.max(0, Math.min(1, progress)) * duration;
-    if (Math.abs(video.currentTime - target) > 0.001) {
-      seekVideo(video, target);
+    const target = progressToTime(progress, duration);
+    if (
+      lastTargetRef.current !== null &&
+      Math.abs(lastTargetRef.current - target) < MIN_SEEK_DELTA
+    ) {
+      return;
     }
+
+    lastTargetRef.current = target;
+    seekVideo(video, target);
   }, []);
+
+  const updateFrameFromProgress = useCallback(
+    (progress: number) => {
+      pendingProgressRef.current = progress;
+      if (rafRef.current !== null) return;
+
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        if (pendingProgressRef.current === null) return;
+        applyProgress(pendingProgressRef.current);
+        pendingProgressRef.current = null;
+      });
+    },
+    [applyProgress],
+  );
 
   useEffect(() => {
     const video = videoRef.current;
@@ -75,6 +107,7 @@ export function useScrollVideoMp4({
 
       durationRef.current = video.duration;
       isReadyRef.current = true;
+      lastTargetRef.current = null;
       video.pause();
       seekVideo(video, 0);
       setIsReady(true);
@@ -88,6 +121,7 @@ export function useScrollVideoMp4({
 
     isReadyRef.current = false;
     durationRef.current = 0;
+    lastTargetRef.current = null;
     setIsReady(false);
     setLoadError(false);
     video.muted = true;
@@ -103,6 +137,10 @@ export function useScrollVideoMp4({
 
     return () => {
       cancelled = true;
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
       video.removeEventListener("loadedmetadata", markReady);
       video.removeEventListener("loadeddata", markReady);
       video.removeEventListener("canplay", markReady);
