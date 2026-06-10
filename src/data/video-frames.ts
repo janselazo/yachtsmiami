@@ -1,7 +1,7 @@
 import type { FrameSequence } from "@/lib/scroll-video-canvas";
 
 export const homepageFrameSequence = {
-  source: "F3.mov",
+  source: "F3.mp4",
   basePath: "/video/f3-frames/frame_",
   extension: ".jpg",
   padLength: 4,

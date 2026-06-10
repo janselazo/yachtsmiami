@@ -16,10 +16,11 @@
   --color-gold-soft: var(--color-gold-soft);
   --color-pink: var(--color-pink);
   --color-pink-soft: var(--color-pink-soft);
-  --font-display: var(--font-outfit), "Outfit", system-ui, sans-serif;
-  --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
-  --font-hero-light: var(--font-outfit), "Outfit", system-ui, sans-serif;
-  --font-hero-bold: var(--font-outfit), "Outfit", system-ui, sans-serif;
+  --font-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --font-body: var(--font-jost), "Jost", system-ui, sans-serif;
+  --font-hero-light: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --font-hero-bold: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --font-accent: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
 }
 
 *,
@@ -200,7 +201,7 @@ img {
   font-family: var(--font-body);
   font-size: clamp(0.62rem, 1.2vw, 0.72rem);
   font-weight: 500;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--color-cream) 72%, transparent);
 }
@@ -210,18 +211,27 @@ img {
   font-size: clamp(2.4rem, 7vw, 5.5rem);
   font-weight: 900;
   line-height: 0.92;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
   text-transform: lowercase;
 }
 
 .display-headline .line-mask:first-child .line-inner {
   font-weight: 200;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   text-transform: none;
 }
 
 .display-headline .line-mask:not(:first-child) .line-inner {
   font-weight: 900;
+}
+
+.display-headline .line-inner.italic {
+  font-family: var(--font-accent);
+  font-size: 1.08em;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .section-copy {
@@ -649,7 +659,7 @@ img {
   font-size: clamp(2.4rem, 5.5vw, 4.25rem);
   font-weight: 200;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   color: var(--color-cream);
 }
 
@@ -658,7 +668,7 @@ img {
   font-size: clamp(3.25rem, 10vw, 7.25rem);
   font-weight: 900;
   line-height: 0.92;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
   color: var(--color-cream);
   text-shadow:
     0 0 32px rgba(56, 189, 248, 0.22),
@@ -679,7 +689,7 @@ img {
   font-family: var(--font-body);
   font-size: clamp(0.62rem, 1.2vw, 0.72rem);
   font-weight: 500;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--color-cream) 72%, transparent);
 }

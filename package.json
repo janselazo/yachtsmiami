@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "extract-frames": "npm run extract-f3-frames",
-    "extract-f3-frames": "mkdir -p public/video/f3-frames && ffmpeg -y -i video/F3.mov -vf \"fps=30,scale=2560:-2:flags=lanczos,eq=contrast=1.1:brightness=0.04:saturation=1.18,unsharp=7:7:0.65:7:7:0.35\" -q:v 2 public/video/f3-frames/frame_%04d.jpg",
+    "extract-f3-frames": "mkdir -p public/video/f3-frames && ffmpeg -y -i video/F3.mp4 -vf \"fps=30,scale=2560:-2:flags=lanczos,eq=contrast=1.1:brightness=0.04:saturation=1.18,unsharp=7:7:0.65:7:7:0.35\" -q:v 2 public/video/f3-frames/frame_%04d.jpg",
     "extract-p2-frames": "mkdir -p public/video/p2-frames && ffmpeg -y -i video/P2.mp4 -vf \"fps=30,scale=2560:-2:flags=lanczos,eq=contrast=1.1:brightness=0.05:saturation=1.2,unsharp=7:7:0.65:7:7:0.35\" -q:v 2 public/video/p2-frames/frame_%04d.jpg",
     "extract-s2-frames": "mkdir -p public/video/s2-frames && ffmpeg -y -i video/S2.mp4 -vf \"fps=30,scale=1920:-2\" -q:v 3 public/video/s2-frames/frame_%04d.jpg"
   },
