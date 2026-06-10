@@ -141,26 +141,8 @@ export function SiteHeader() {
                 {link.label}
               </a>
             ))}
-            <div className="mt-4 flex flex-col gap-3 lg:hidden">
-              <a
-                href="#book"
-                className="btn-nav-cta w-full"
-                onClick={() => setMenuOpen(false)}
-              >
-                {t.nav.reserve}
-              </a>
-              <a
-                href={brand.whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-nav-whatsapp w-full"
-                aria-label={t.booking.whatsapp}
-                onClick={() => setMenuOpen(false)}
-              >
-                <WhatsAppIcon />
-                {t.booking.whatsapp}
-              </a>
-              <LanguageSwitcher className="mt-1 self-start" />
+            <div className="mt-4 lg:hidden">
+              <LanguageSwitcher className="self-start" />
             </div>
           </nav>
         </div>

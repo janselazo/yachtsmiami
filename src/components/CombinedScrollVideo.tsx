@@ -6,7 +6,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { homepageFrameSequence } from "@/data/video-frames";
 import { brand } from "@/data/brand";
-import { homepageVideoScroll } from "@/lib/combined-video-scroll";
+import {
+  homepageVideoScroll,
+  videoSecondsToScrollProgress,
+} from "@/lib/combined-video-scroll";
 import { useScrollVideoFrames } from "@/lib/useScrollVideoFrames";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
@@ -27,6 +30,7 @@ export function CombinedScrollVideo({
   const pinRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
+  const heroCopyRef = useRef<HTMLDivElement>(null);
   const sceneContentRef = useRef<HTMLDivElement>(null);
   const lineLightRef = useRef<HTMLSpanElement>(null);
   const lineBoldRef = useRef<HTMLSpanElement>(null);
@@ -51,6 +55,7 @@ export function CombinedScrollVideo({
       const section = sectionRef.current;
       const pin = pinRef.current;
       const heroContent = heroContentRef.current;
+      const heroCopy = heroCopyRef.current;
       const sceneContent = sceneContentRef.current;
       const sceneIntro = sceneIntroRef.current;
       const lineLight = lineLightRef.current;
@@ -63,6 +68,7 @@ export function CombinedScrollVideo({
         !section ||
         !pin ||
         !heroContent ||
+        !heroCopy ||
         !sceneContent ||
         !sceneIntro ||
         !lineLight ||
@@ -146,9 +152,18 @@ export function CombinedScrollVideo({
         heroContentOutStart,
         sceneContentInStart,
         scrollMultiplier,
+        heroCopyLeadSeconds,
       } = homepageVideoScroll;
 
-      const heroTextSpan = heroContentOutStart - 0.06;
+      const heroTextSpan = 0.06;
+      const heroCopyLeadProgress = videoSecondsToScrollProgress(
+        heroCopyLeadSeconds,
+        homepageFrameSequence.count,
+        homepageFrameSequence.fps,
+      );
+      const heroCopyFadeDuration = 0.05;
+      const heroCopyHideEnd = sceneContentInStart - heroCopyLeadProgress;
+      const heroCopyHideStart = heroCopyHideEnd - heroCopyFadeDuration;
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -172,24 +187,35 @@ export function CombinedScrollVideo({
         .to(cta, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.21);
 
       if (isMobileLayout) {
+        timeline
+          .to(
+            heroCopy,
+            {
+              opacity: 0,
+              y: -20,
+              duration: heroCopyFadeDuration,
+              ease: "power2.in",
+            },
+            heroCopyHideStart,
+          )
+          .to(
+            cta,
+            { opacity: 0, y: 16, duration: 0.06, ease: "power2.in" },
+            sceneContentInStart - 0.1,
+          );
+      } else {
         timeline.to(
-          cta,
-          { opacity: 0, y: 16, duration: 0.06, ease: "power2.in" },
-          sceneContentInStart - 0.1,
-        );
-      }
-
-      timeline
-        .to(
           heroContent,
           { opacity: 0, y: -24, duration: heroTextSpan, ease: "power2.in" },
           heroContentOutStart,
-        )
-        .to(
-          sceneContent,
-          { opacity: 1, duration: 0.06, ease: "power2.out" },
-          sceneContentInStart,
         );
+      }
+
+      timeline.to(
+        sceneContent,
+        { opacity: 1, duration: 0.06, ease: "power2.out" },
+        sceneContentInStart,
+      );
 
       if (sceneEyebrowEl) {
         timeline.to(
@@ -294,7 +320,10 @@ export function CombinedScrollVideo({
           ref={heroContentRef}
           className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-between px-6 pb-24 pt-28 lg:px-10 lg:pb-28 lg:pt-32"
         >
-          <div className="hero-copy-block flex flex-col items-start">
+          <div
+            ref={heroCopyRef}
+            className="hero-copy-block flex flex-col items-start"
+          >
             <h1 className="hero-headline">
               <span className="line-mask">
                 <span ref={lineLightRef} className="line-inner hero-line-light">

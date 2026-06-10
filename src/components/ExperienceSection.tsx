@@ -21,7 +21,8 @@ export function ExperienceSection() {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    const section = sectionRef.current;
+    if (!video || !section) return;
 
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -33,12 +34,65 @@ export function ExperienceSection() {
     }
 
     video.muted = true;
-    const playPromise = video.play();
-    if (playPromise) {
-      playPromise.catch(() => {
-        /* Autoplay may be blocked until user interaction */
-      });
-    }
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+
+    const isSectionVisible = () => {
+      const rect = section.getBoundingClientRect();
+      return rect.top < window.innerHeight && rect.bottom > 0;
+    };
+
+    const tryPlay = () => {
+      if (!isSectionVisible()) return;
+
+      const playPromise = video.play();
+      if (playPromise) {
+        playPromise.catch(() => {
+          /* Autoplay may be blocked until user interaction */
+        });
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+              tryPlay();
+            } else {
+              video.addEventListener("canplay", tryPlay, { once: true });
+            }
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.12 },
+    );
+
+    observer.observe(section);
+
+    const onCanPlay = () => {
+      if (isSectionVisible()) tryPlay();
+    };
+
+    const onInteraction = () => {
+      if (isSectionVisible() && video.paused) tryPlay();
+    };
+
+    video.addEventListener("canplay", onCanPlay);
+    window.addEventListener("touchstart", onInteraction, {
+      passive: true,
+    });
+    window.addEventListener("click", onInteraction);
+
+    return () => {
+      observer.disconnect();
+      video.removeEventListener("canplay", onCanPlay);
+      window.removeEventListener("touchstart", onInteraction);
+      window.removeEventListener("click", onInteraction);
+    };
   }, []);
 
   useGSAP(

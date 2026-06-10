@@ -354,6 +354,8 @@ img {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  transform: scale(1.28);
+  transform-origin: center bottom;
 }
 
 .experience-video-bg {
@@ -364,8 +366,6 @@ img {
   height: 100%;
   object-fit: cover;
   object-position: center 78%;
-  transform: scale(1.28);
-  transform-origin: center bottom;
 }
 
 .site-header {
