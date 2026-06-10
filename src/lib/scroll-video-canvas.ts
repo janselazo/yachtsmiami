@@ -26,8 +26,16 @@ export function drawCover(
 export function loadFrameImage(src: string, priority: "high" | "low" = "low") {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
-    image.decoding = priority === "high" ? "sync" : "async";
-    image.fetchPriority = priority;
+    image.decoding = "async";
+
+    if (priority === "high" && "fetchPriority" in image) {
+      try {
+        image.fetchPriority = "high";
+      } catch {
+        // Some embedded browsers reject fetchPriority on Image().
+      }
+    }
+
     image.onload = () => resolve(image);
     image.onerror = () => reject(new Error(`Failed to load frame: ${src}`));
     image.src = src;

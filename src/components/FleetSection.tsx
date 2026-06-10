@@ -7,6 +7,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { boats, type Boat } from "@/data/boats";
 import { animateSectionTypography, prefersReducedMotion } from "@/lib/section-motion";
+import { useLanguage } from "@/i18n/LanguageProvider";
+import { interpolate } from "@/i18n/translations";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,8 +17,8 @@ type FleetSectionProps = {
   selectedBoatId?: string;
 };
 
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("en-US", {
+function formatPrice(value: number, locale: string) {
+  return new Intl.NumberFormat(locale === "es" ? "es-US" : "en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -32,6 +34,9 @@ function BoatCard({
   selected: boolean;
   onSelect: (id: string) => void;
 }) {
+  const { locale, t } = useLanguage();
+  const copy = t.boats[boat.id];
+
   return (
     <article
       className={`group overflow-hidden rounded-[1.25rem] border transition-all duration-300 ${
@@ -51,35 +56,39 @@ function BoatCard({
         <div className="absolute inset-0 bg-gradient-to-t from-ocean-deep/90 via-ocean-deep/20 to-transparent" />
         {boat.featured ? (
           <span className="absolute left-4 top-4 rounded-full border border-pink/40 bg-pink/20 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-pink-soft">
-            Signature
+            {t.fleet.signature}
           </span>
         ) : null}
         <div className="absolute bottom-4 left-4 right-4">
           <p className="font-display text-2xl font-black text-cream">{boat.name}</p>
           <p className="mt-1 text-sm text-cream-muted">
-            {boat.length} · up to {boat.capacity} guests
+            {boat.length} · {interpolate(t.fleet.guests, { count: boat.capacity })}
           </p>
         </div>
       </div>
 
       <div className="space-y-4 p-5 lg:p-6">
-        <p className="text-sm leading-relaxed text-cream-muted">{boat.highlight}</p>
+        <p className="text-sm leading-relaxed text-cream-muted">
+          {copy?.highlight ?? boat.highlight}
+        </p>
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.18em] text-gold-soft">
-              From
+              {t.fleet.from}
             </p>
             <p className="font-display text-3xl font-black text-cream">
-              {formatPrice(boat.priceFrom)}
+              {formatPrice(boat.priceFrom, locale)}
             </p>
-            <p className="text-xs text-cream-muted">/{boat.duration}</p>
+            <p className="text-xs text-cream-muted">
+              /{copy?.duration ?? boat.duration}
+            </p>
           </div>
           <button
             type="button"
             onClick={() => onSelect(boat.id)}
             className={selected ? "btn-primary" : "btn-secondary"}
           >
-            {selected ? "Selected" : "Select"}
+            {selected ? t.fleet.selected : t.fleet.select}
           </button>
         </div>
       </div>
@@ -91,6 +100,7 @@ export function FleetSection({
   onSelectBoat,
   selectedBoatId,
 }: FleetSectionProps) {
+  const { locale, t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -124,7 +134,7 @@ export function FleetSection({
         },
       );
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [locale] },
   );
 
   return (
@@ -136,27 +146,27 @@ export function FleetSection({
       <div className="mx-auto max-w-7xl">
         <div ref={introRef} className="max-w-3xl">
           <p className="eyebrow mb-5" data-motion-eyebrow>
-            Our Fleet
+            {t.fleet.eyebrow}
           </p>
           <h2 className="display-headline text-cream">
             <span className="line-mask" data-motion-line>
-              <span className="line-inner">Choose your</span>
+              <span className="line-inner">{t.fleet.titleLine1}</span>
             </span>
             <span className="line-mask" data-motion-line>
-              <span className="line-inner italic text-ocean-light">vessel</span>
+              <span className="line-inner italic text-ocean-light">
+                {t.fleet.titleLine2}
+              </span>
             </span>
           </h2>
           <span className="section-accent" data-motion-accent aria-hidden="true" />
           <p className="section-copy" data-motion-copy>
-            From intimate day boats to statement luxury yachts — every charter
-            includes a certified captain, fuel for local cruising, and a crew
-            ready to deliver a worry-free day on the water.
+            {t.fleet.description}
           </p>
         </div>
 
         <div
           ref={gridRef}
-          className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+          className="mt-14 grid gap-6 md:grid-cols-2"
         >
           {boats.map((boat) => (
             <div key={boat.id} data-boat-card>

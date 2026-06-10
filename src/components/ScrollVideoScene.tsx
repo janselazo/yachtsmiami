@@ -7,34 +7,27 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { pinkYachtFrameSequence } from "@/data/video-frames";
 import { useScrollVideoFrames } from "@/lib/useScrollVideoFrames";
 import { animateSectionTypography, prefersReducedMotion } from "@/lib/section-motion";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
 type ScrollVideoSceneProps = {
   id?: string;
   sequence?: typeof pinkYachtFrameSequence;
-  eyebrow: string;
-  title: string;
-  titleAccent?: string;
-  titleAccentClassName?: string;
-  description: string;
   align?: "left" | "right";
   overlay?: "default" | "light" | "hero";
-  extractScript?: string;
+  titleAccentClassName?: string;
 };
 
 export function ScrollVideoScene({
   id,
   sequence = pinkYachtFrameSequence,
-  eyebrow,
-  title,
-  titleAccent,
-  titleAccentClassName = "italic text-ocean-light",
-  description,
   align = "left",
   overlay = "default",
-  extractScript = "npm run extract-p2-frames",
+  titleAccentClassName = "italic text-pink-soft",
 }: ScrollVideoSceneProps) {
+  const { locale, t } = useLanguage();
+  const scene = t.pinkScene;
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -49,8 +42,8 @@ export function ScrollVideoScene({
 
   const {
     posterSrc,
-    posterVisible,
     loadError,
+    onPosterLoad,
     updateFrameFromProgress,
   } = useScrollVideoFrames({
     sequence,
@@ -101,7 +94,7 @@ export function ScrollVideoScene({
         ScrollTrigger.refresh();
       });
     },
-    { scope: sectionRef, dependencies: [sequence, updateFrameFromProgress, align] },
+    { scope: sectionRef, dependencies: [sequence, updateFrameFromProgress, align, locale] },
   );
 
   return (
@@ -109,7 +102,7 @@ export function ScrollVideoScene({
       ref={sectionRef}
       id={id}
       className="relative"
-      aria-label={eyebrow}
+      aria-label={scene.eyebrow}
     >
       <div
         ref={pinRef}
@@ -120,9 +113,10 @@ export function ScrollVideoScene({
             src={posterSrc}
             alt=""
             aria-hidden="true"
-            className={`transition-opacity duration-300 ${
-              posterVisible ? "opacity-100" : "opacity-0"
-            }`}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            onLoad={onPosterLoad}
           />
 
           <canvas ref={canvasRef} aria-hidden="true" />
@@ -130,8 +124,7 @@ export function ScrollVideoScene({
 
         {loadError ? (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-ocean-deep/80 px-6 text-center text-sm text-cream-muted">
-            Scene frames failed to load. Run{" "}
-            <code className="mx-1 text-cream">{extractScript}</code>.
+            npm run extract-p2-frames
           </div>
         ) : null}
 
@@ -150,16 +143,16 @@ export function ScrollVideoScene({
         >
           <div ref={introRef} className="max-w-2xl">
             <p className="eyebrow mb-5" data-motion-eyebrow>
-              {eyebrow}
+              {scene.eyebrow}
             </p>
             <h2 className="display-headline text-cream">
               <span className="line-mask" data-motion-line>
-                <span className="line-inner">{title}</span>
+                <span className="line-inner">{scene.title}</span>
               </span>
-              {titleAccent ? (
+              {scene.titleAccent ? (
                 <span className="line-mask" data-motion-line>
                   <span className={`line-inner ${titleAccentClassName}`}>
-                    {titleAccent}
+                    {scene.titleAccent}
                   </span>
                 </span>
               ) : null}
@@ -173,7 +166,7 @@ export function ScrollVideoScene({
               className={`section-copy ${overlay === "light" ? "section-copy-elevated" : ""} ${align === "right" ? "ml-auto" : ""}`}
               data-motion-copy
             >
-              {description}
+              {scene.description}
             </p>
           </div>
         </div>

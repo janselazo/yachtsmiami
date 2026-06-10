@@ -18,6 +18,35 @@ type UseScrollVideoFramesOptions = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
 };
 
+function scheduleRenderRetries(tryRender: () => boolean) {
+  let cancelled = false;
+  let frameRetries = 0;
+
+  const retryOnFrame = () => {
+    if (cancelled || frameRetries > 120) return;
+    if (!tryRender()) {
+      frameRetries += 1;
+      requestAnimationFrame(retryOnFrame);
+    }
+  };
+
+  requestAnimationFrame(retryOnFrame);
+
+  const timeouts = [100, 250, 500, 1000, 2000].map((delay) =>
+    window.setTimeout(() => {
+      if (!cancelled) {
+        tryRender();
+        ScrollTrigger.refresh();
+      }
+    }, delay),
+  );
+
+  return () => {
+    cancelled = true;
+    timeouts.forEach((timeoutId) => window.clearTimeout(timeoutId));
+  };
+}
+
 export function useScrollVideoFrames({
   sequence,
   pinRef,
@@ -27,7 +56,6 @@ export function useScrollVideoFrames({
     Array.from({ length: sequence.count }, () => null),
   );
   const frameIndexRef = useRef(0);
-  const [posterVisible, setPosterVisible] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
   const renderFrame = useCallback(
@@ -43,7 +71,6 @@ export function useScrollVideoFrames({
       const didRender = renderFrameToCanvas(canvas, pin, image);
       if (didRender) {
         frameIndexRef.current = index;
-        setPosterVisible(false);
       }
       return didRender;
     },
@@ -54,30 +81,42 @@ export function useScrollVideoFrames({
     return renderFrame(frameIndexRef.current);
   }, [renderFrame]);
 
+  const registerPosterImage = useCallback(
+    (image: HTMLImageElement | null) => {
+      if (!image?.complete || !image.naturalWidth) {
+        return false;
+      }
+
+      framesRef.current[0] = image;
+      requestAnimationFrame(() => {
+        tryRenderCurrentFrame();
+        ScrollTrigger.refresh();
+      });
+      return true;
+    },
+    [tryRenderCurrentFrame],
+  );
+
+  const onPosterLoad = useCallback(
+    (event: React.SyntheticEvent<HTMLImageElement>) => {
+      registerPosterImage(event.currentTarget);
+    },
+    [registerPosterImage],
+  );
+
   useEffect(() => {
     let cancelled = false;
+    let cancelRenderRetries = () => {};
 
     const preloadFrames = async () => {
       try {
-        const first = await loadFrameImage(getFramePath(sequence, 0), "high");
-        if (cancelled) return;
+        if (!framesRef.current[0]) {
+          const first = await loadFrameImage(getFramePath(sequence, 0), "high");
+          if (cancelled) return;
+          framesRef.current[0] = first;
+        }
 
-        framesRef.current[0] = first;
-        requestAnimationFrame(() => {
-          tryRenderCurrentFrame();
-          ScrollTrigger.refresh();
-        });
-
-        // Pin can be 0×0 on first paint; retry until canvas draws.
-        let retries = 0;
-        const retryRender = () => {
-          if (cancelled || retries > 24) return;
-          if (!tryRenderCurrentFrame()) {
-            retries += 1;
-            requestAnimationFrame(retryRender);
-          }
-        };
-        requestAnimationFrame(retryRender);
+        cancelRenderRetries = scheduleRenderRetries(tryRenderCurrentFrame);
 
         const batchSize = 12;
         for (let start = 1; start < sequence.count; start += batchSize) {
@@ -106,6 +145,7 @@ export function useScrollVideoFrames({
 
     return () => {
       cancelled = true;
+      cancelRenderRetries();
     };
   }, [sequence, tryRenderCurrentFrame]);
 
@@ -138,8 +178,8 @@ export function useScrollVideoFrames({
 
   return {
     posterSrc: getFramePath(sequence, 0),
-    posterVisible,
     loadError,
+    onPosterLoad,
     renderFrame,
     updateFrameFromProgress,
   };

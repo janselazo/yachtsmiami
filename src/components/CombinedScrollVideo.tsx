@@ -5,28 +5,24 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { homepageFrameSequence } from "@/data/video-frames";
+import { brand } from "@/data/brand";
 import { homepageVideoScroll } from "@/lib/combined-video-scroll";
 import { useScrollVideoFrames } from "@/lib/useScrollVideoFrames";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
 type CombinedScrollVideoProps = {
-  sceneEyebrow: string;
-  sceneTitle: string;
-  sceneTitleAccent?: string;
-  sceneTitleAccentClassName?: string;
-  sceneDescription: string;
   sceneAlign?: "left" | "right";
+  sceneTitleAccentClassName?: string;
 };
 
 export function CombinedScrollVideo({
-  sceneEyebrow,
-  sceneTitle,
-  sceneTitleAccent,
-  sceneTitleAccentClassName = "italic text-ocean-light",
-  sceneDescription,
   sceneAlign = "right",
+  sceneTitleAccentClassName = "italic text-ocean-light",
 }: CombinedScrollVideoProps) {
+  const { locale, t } = useLanguage();
+  const scene = t.signatureScene;
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,8 +37,8 @@ export function CombinedScrollVideo({
 
   const {
     posterSrc,
-    posterVisible,
     loadError,
+    onPosterLoad,
     updateFrameFromProgress,
   } = useScrollVideoFrames({
     sequence: homepageFrameSequence,
@@ -91,8 +87,10 @@ export function CombinedScrollVideo({
         sceneIntro.querySelector<HTMLElement>("[data-motion-accent]");
       const sceneCopyEl =
         sceneIntro.querySelector<HTMLElement>("[data-motion-copy]");
-      const sceneOrigin = sceneAlign === "right" ? "right center" : "left center";
-      const sceneSlideX = sceneAlign === "right" ? 28 : -28;
+      const isMobileLayout = window.matchMedia("(max-width: 1023px)").matches;
+      const effectiveAlign = isMobileLayout ? "left" : sceneAlign;
+      const sceneOrigin = effectiveAlign === "right" ? "right center" : "left center";
+      const sceneSlideX = effectiveAlign === "right" ? 28 : -28;
 
       if (reducedMotion) {
         gsap.set(
@@ -171,7 +169,17 @@ export function CombinedScrollVideo({
         .to(lineBold, { yPercent: 0, duration: 0.05, ease: "power3.out" }, 0.05)
         .to(accent, { scaleX: 1, duration: 0.04, ease: "power2.out" }, 0.11)
         .to(subhead, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.16)
-        .to(cta, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.21)
+        .to(cta, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.21);
+
+      if (isMobileLayout) {
+        timeline.to(
+          cta,
+          { opacity: 0, y: 16, duration: 0.06, ease: "power2.in" },
+          sceneContentInStart - 0.1,
+        );
+      }
+
+      timeline
         .to(
           heroContent,
           { opacity: 0, y: -24, duration: heroTextSpan, ease: "power2.in" },
@@ -229,7 +237,7 @@ export function CombinedScrollVideo({
       requestAnimationFrame(() => updateFrameFromProgress(0));
       requestAnimationFrame(() => ScrollTrigger.refresh());
     },
-    { scope: sectionRef, dependencies: [updateFrameFromProgress, sceneAlign] },
+    { scope: sectionRef, dependencies: [updateFrameFromProgress, sceneAlign, locale] },
   );
 
   return (
@@ -248,9 +256,10 @@ export function CombinedScrollVideo({
             src={posterSrc}
             alt=""
             aria-hidden="true"
-            className={`transition-opacity duration-300 ${
-              posterVisible ? "opacity-100" : "opacity-0"
-            }`}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            onLoad={onPosterLoad}
           />
 
           <canvas ref={canvasRef} aria-hidden="true" />
@@ -275,12 +284,12 @@ export function CombinedScrollVideo({
             <h1 className="hero-headline">
               <span className="line-mask">
                 <span ref={lineLightRef} className="line-inner hero-line-light">
-                  Private
+                  {t.hero.lineLight}
                 </span>
               </span>
               <span className="line-mask">
                 <span ref={lineBoldRef} className="line-inner hero-line-bold">
-                  Yacht charters
+                  {t.hero.lineBold}
                 </span>
               </span>
             </h1>
@@ -288,54 +297,56 @@ export function CombinedScrollVideo({
             <span ref={accentRef} className="hero-accent" aria-hidden="true" />
 
             <p ref={subheadRef} className="hero-subhead">
-              Blue Paradise · Miami
+              {brand.name}
             </p>
           </div>
 
           <div ref={ctaRef} className="hero-cta-row flex flex-wrap gap-4">
             <a href="#fleet" className="btn-primary">
-              View the fleet
+              {t.hero.viewFleet}
             </a>
             <a href="#book" className="btn-secondary">
-              Book your trip
+              {t.hero.bookTrip}
             </a>
           </div>
         </div>
 
         <div
           ref={sceneContentRef}
-          className={`absolute inset-0 z-10 mx-auto flex h-full w-full max-w-7xl items-end px-6 pb-24 pt-32 opacity-0 lg:px-10 lg:pb-28 ${
-            sceneAlign === "right" ? "justify-end text-right" : "justify-start"
+          className={`combined-scene-panel absolute inset-0 z-10 mx-auto flex h-full w-full max-w-7xl items-end px-6 pb-24 pt-32 opacity-0 lg:px-10 lg:pb-28 ${
+            sceneAlign === "right"
+              ? "lg:justify-end lg:text-right"
+              : "lg:justify-start lg:text-left"
           }`}
         >
-          <div ref={sceneIntroRef} className="max-w-2xl">
+          <div ref={sceneIntroRef} className="max-w-2xl max-lg:mr-auto">
             <p className="eyebrow mb-5" data-motion-eyebrow>
-              {sceneEyebrow}
+              {scene.eyebrow}
             </p>
             <h2 className="display-headline text-cream">
               <span className="line-mask" data-motion-line>
-                <span className="line-inner">{sceneTitle}</span>
+                <span className="line-inner">{scene.title}</span>
               </span>
-              {sceneTitleAccent ? (
+              {scene.titleAccent ? (
                 <span className="line-mask" data-motion-line>
                   <span
                     className={`line-inner ${sceneTitleAccentClassName}`}
                   >
-                    {sceneTitleAccent}
+                    {scene.titleAccent}
                   </span>
                 </span>
               ) : null}
             </h2>
             <span
-              className={`section-accent ${sceneAlign === "right" ? "section-accent-right" : ""}`}
+              className={`section-accent ${sceneAlign === "right" ? "section-accent-right max-lg:ml-0" : ""}`}
               data-motion-accent
               aria-hidden="true"
             />
             <p
-              className={`section-copy ${sceneAlign === "right" ? "ml-auto" : ""}`}
+              className={`section-copy ${sceneAlign === "right" ? "lg:ml-auto" : ""}`}
               data-motion-copy
             >
-              {sceneDescription}
+              {scene.description}
             </p>
           </div>
         </div>

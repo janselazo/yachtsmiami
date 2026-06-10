@@ -9,6 +9,7 @@ import {
   heroFrameSequence,
 } from "@/data/video-frames";
 import { useScrollVideoFrames } from "@/lib/useScrollVideoFrames";
+import { brand } from "@/data/brand";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,8 +28,8 @@ export function ScrollVideoHero() {
 
   const {
     posterSrc,
-    posterVisible,
     loadError,
+    onPosterLoad,
     updateFrameFromProgress,
   } = useScrollVideoFrames({
     sequence: heroFrameSequence,
@@ -166,14 +167,16 @@ export function ScrollVideoHero() {
             src={posterSrc}
             alt=""
             aria-hidden="true"
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-              posterVisible ? "opacity-100" : "opacity-0"
-            }`}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            onLoad={onPosterLoad}
+            className="absolute inset-0 z-0 h-full w-full object-cover"
           />
 
           <canvas
             ref={canvasRef}
-            className="absolute inset-0 h-full w-full"
+            className="absolute inset-0 z-[1] h-full w-full pointer-events-none"
             aria-hidden="true"
           />
         </div>
@@ -208,7 +211,7 @@ export function ScrollVideoHero() {
             <span ref={accentRef} className="hero-accent" aria-hidden="true" />
 
             <p ref={subheadRef} className="hero-subhead">
-              Blue Paradise · Miami
+              {brand.name}
             </p>
           </div>
 

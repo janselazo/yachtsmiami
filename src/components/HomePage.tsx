@@ -7,6 +7,7 @@ import { CombinedScrollVideo } from "@/components/CombinedScrollVideo";
 import { ScrollVideoScene } from "@/components/ScrollVideoScene";
 import { FleetSection } from "@/components/FleetSection";
 import { ExperienceSection } from "@/components/ExperienceSection";
+import { JetSkiSection } from "@/components/JetSkiSection";
 import { BookingSection } from "@/components/BookingSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { boats } from "@/data/boats";
@@ -22,14 +23,7 @@ export function HomePage() {
       <div className="relative z-10">
         <SiteHeader />
         <main>
-          <CombinedScrollVideo
-            sceneEyebrow="Signature Experience"
-            sceneTitle="Live the luxury"
-            sceneTitleAccent="of the open sea"
-            sceneTitleAccentClassName="italic text-ocean-light"
-            sceneDescription="This is not just a boat ride — it is music, bubbles, skyline views, and a crew that keeps the vibes high from dock to sandbar."
-            sceneAlign="right"
-          />
+          <CombinedScrollVideo sceneAlign="right" />
           <FleetSection
             selectedBoatId={selectedBoatId}
             onSelectBoat={(boatId) => {
@@ -39,16 +33,9 @@ export function HomePage() {
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
           />
-          <ScrollVideoScene
-            id="signature-pink"
-            eyebrow="Fan Favorite"
-            title="The Pink Yacht"
-            titleAccent="experience"
-            titleAccentClassName="italic text-pink-soft"
-            description="Our iconic pink vessel brings bachelorette energy, birthday hype, and VIP style to Biscayne Bay. Luxury in pink, by design."
-            overlay="light"
-          />
+          <ScrollVideoScene id="signature-pink" overlay="light" />
           <ExperienceSection />
+          <JetSkiSection />
           <BookingSection
             selectedBoatId={selectedBoatId}
             onBoatChange={setSelectedBoatId}

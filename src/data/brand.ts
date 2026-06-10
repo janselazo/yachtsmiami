@@ -1,20 +1,22 @@
 export const brand = {
-  name: "Blue Paradise Yachts",
-  shortName: "Blue Paradise",
+  name: "2YACHTS MIAMI",
+  shortName: "2YACHTS MIAMI",
   location: "Miami, FL",
   tagline: "Luxury on the Miami horizon",
   description:
     "Private yacht charters for sandbar days, sunset cruises, celebrations, and VIP escapes on Biscayne Bay.",
-  phone: "305-522-9027",
+  phone: "13055229027",
+  phoneDisplay: "+1 (305) 522-9027",
   phoneHref: "tel:+13055229027",
   whatsappHref: "https://wa.me/13055229027",
-  email: "blueparadiseyachtsmiami@gmail.com",
-  emailHref: "mailto:blueparadiseyachtsmiami@gmail.com",
-  address: "2215 NW 14th St, Miami, FL 33125",
+  email: "2yachtsmiami@gmail.com",
+  emailHref: "mailto:2yachtsmiami@gmail.com",
+  address: "2215 NW 14th St, Miami, FL",
   beacons: "https://beacons.ai/blueparadiseyachtsmiami",
-  instagram: "https://www.instagram.com/blueparadiseyachts/",
-  instagramHandle: "@blueparadiseyachts",
+  instagram: "https://www.instagram.com/2yachtsmiami/",
+  instagramHandle: "@2yachtsmiami",
   hours: "Daily · 8am – 10pm",
+  logoSrc: "/images/brand/logo.png",
 } as const;
 
 export const experiences = [

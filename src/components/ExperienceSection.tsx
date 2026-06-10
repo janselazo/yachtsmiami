@@ -4,15 +4,16 @@ import { useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { experiences } from "@/data/brand";
 import {
   animateExperienceCards,
   animateSectionTypography,
 } from "@/lib/section-motion";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function ExperienceSection() {
+  const { locale, t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -51,7 +52,7 @@ export function ExperienceSection() {
       const cards = list.querySelectorAll<HTMLElement>("[data-experience]");
       animateExperienceCards(list, cards);
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [locale] },
   );
 
   return (
@@ -80,27 +81,26 @@ export function ExperienceSection() {
       <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
         <div ref={introRef}>
           <p className="eyebrow mb-5" data-motion-eyebrow>
-            Experiences
+            {t.experiences.eyebrow}
           </p>
           <h2 className="display-headline text-cream">
             <span className="line-mask" data-motion-line>
-              <span className="line-inner">More than a ride.</span>
+              <span className="line-inner">{t.experiences.titleLine1}</span>
             </span>
             <span className="line-mask" data-motion-line>
               <span className="line-inner italic text-gold-soft">
-                A private escape.
+                {t.experiences.titleLine2}
               </span>
             </span>
           </h2>
           <span className="section-accent" data-motion-accent aria-hidden="true" />
           <p className="section-copy" data-motion-copy>
-            Whether you are chasing the sandbar, planning a bachelorette, or
-            hosting clients on the bay — we tailor every charter to your vibe.
+            {t.experiences.description}
           </p>
         </div>
 
         <div ref={listRef} className="grid gap-4">
-          {experiences.map((experience, index) => (
+          {t.experiences.items.map((experience, index) => (
             <article
               key={experience.title}
               data-experience
