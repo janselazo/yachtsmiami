@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { homepageVideoSequence } from "@/data/video-frames";
 import { homepageVideoScroll } from "@/lib/combined-video-scroll";
+import { useScrollReady } from "@/lib/scroll-context";
 import { useScrollVideoMp4 } from "@/lib/useScrollVideoMp4";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -37,6 +38,7 @@ export function CombinedScrollVideo({
   const subheadRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const sceneIntroRef = useRef<HTMLDivElement>(null);
+  const scrollReady = useScrollReady();
 
   const {
     videoRef,
@@ -45,10 +47,13 @@ export function CombinedScrollVideo({
     updateFrameFromProgress,
   } = useScrollVideoMp4({
     src: homepageVideoSequence.src,
+    scrollTriggerId: "homepage-scroll-video",
   });
 
   useGSAP(
     () => {
+      if (!scrollReady) return;
+
       const section = sectionRef.current;
       const pin = pinRef.current;
       const heroContent = heroContentRef.current;
@@ -141,6 +146,14 @@ export function CombinedScrollVideo({
         });
       }
 
+      const introTimeline = gsap.timeline({ delay: 0.15 });
+      introTimeline
+        .to(lineLight, { yPercent: 0, duration: 0.85, ease: "power3.out" }, 0)
+        .to(lineBold, { yPercent: 0, duration: 0.85, ease: "power3.out" }, 0.12)
+        .to(accent, { scaleX: 1, duration: 0.55, ease: "power2.out" }, 0.28)
+        .to(subhead, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 0.38)
+        .to(cta, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 0.48);
+
       const {
         heroContentOutStart,
         sceneContentInStart,
@@ -149,26 +162,23 @@ export function CombinedScrollVideo({
 
       const heroTextSpan = heroContentOutStart - 0.06;
 
-      const timeline = gsap.timeline({
+      const scrollTimeline = gsap.timeline({
         scrollTrigger: {
+          id: "homepage-scroll-video",
           trigger: section,
           start: "top top",
           end: `+=${Math.round(scrollMultiplier * 100)}%`,
           pin: pin,
           scrub: 0.65,
           anticipatePin: 1,
+          invalidateOnRefresh: true,
           onUpdate: (self) => updateFrameFromProgress(self.progress),
           onEnter: (self) => updateFrameFromProgress(self.progress),
           onRefresh: (self) => updateFrameFromProgress(self.progress),
         },
       });
 
-      timeline
-        .to(lineLight, { yPercent: 0, duration: 0.05, ease: "power3.out" }, 0)
-        .to(lineBold, { yPercent: 0, duration: 0.05, ease: "power3.out" }, 0.05)
-        .to(accent, { scaleX: 1, duration: 0.04, ease: "power2.out" }, 0.11)
-        .to(subhead, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.16)
-        .to(cta, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.21)
+      scrollTimeline
         .to(
           heroContent,
           { opacity: 0, y: -24, duration: heroTextSpan, ease: "power2.in" },
@@ -181,7 +191,7 @@ export function CombinedScrollVideo({
         );
 
       if (sceneEyebrowEl) {
-        timeline.to(
+        scrollTimeline.to(
           sceneEyebrowEl,
           {
             opacity: 1,
@@ -195,7 +205,7 @@ export function CombinedScrollVideo({
       }
 
       if (sceneLines.length) {
-        timeline.to(
+        scrollTimeline.to(
           sceneLines,
           {
             yPercent: 0,
@@ -208,7 +218,7 @@ export function CombinedScrollVideo({
       }
 
       if (sceneAccentEl) {
-        timeline.to(
+        scrollTimeline.to(
           sceneAccentEl,
           { scaleX: 1, duration: 0.04, ease: "power2.out" },
           sceneContentInStart + 0.018,
@@ -216,17 +226,19 @@ export function CombinedScrollVideo({
       }
 
       if (sceneCopyEl) {
-        timeline.to(
+        scrollTimeline.to(
           sceneCopyEl,
           { opacity: 1, y: 0, x: 0, duration: 0.05, ease: "power3.out" },
           sceneContentInStart + 0.024,
         );
       }
 
-      requestAnimationFrame(() => updateFrameFromProgress(0));
-      requestAnimationFrame(() => ScrollTrigger.refresh());
+      requestAnimationFrame(() => {
+        updateFrameFromProgress(0);
+        ScrollTrigger.refresh();
+      });
     },
-    { scope: sectionRef, dependencies: [updateFrameFromProgress, sceneAlign] },
+    { scope: sectionRef, dependencies: [scrollReady, updateFrameFromProgress, sceneAlign] },
   );
 
   return (
@@ -248,8 +260,8 @@ export function CombinedScrollVideo({
             playsInline
             preload="auto"
             aria-hidden="true"
-            className={`transition-opacity duration-300 ${
-              isReady ? "opacity-100" : "opacity-0"
+            className={`transition-opacity duration-500 ${
+              isReady ? "opacity-100" : "opacity-40"
             }`}
           />
         </div>

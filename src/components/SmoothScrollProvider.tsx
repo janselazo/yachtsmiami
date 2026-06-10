@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useState } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollReadyContext } from "@/lib/scroll-context";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,14 +13,18 @@ type SmoothScrollProviderProps = {
 };
 
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
-  const lenisRef = useRef<Lenis | null>(null);
+  const [scrollReady, setScrollReady] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
     if (prefersReducedMotion) {
+      requestAnimationFrame(() => {
+        setScrollReady(true);
+        ScrollTrigger.refresh();
+      });
       return;
     }
 
@@ -28,8 +33,6 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       smoothWheel: true,
       touchMultiplier: 1.2,
     });
-
-    lenisRef.current = lenis;
 
     const root = document.documentElement;
 
@@ -71,19 +74,28 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     gsap.ticker.lagSmoothing(0);
 
     requestAnimationFrame(() => {
+      setScrollReady(true);
       ScrollTrigger.refresh();
     });
 
+    const onResize = () => ScrollTrigger.refresh();
+    window.addEventListener("resize", onResize);
+
     return () => {
+      window.removeEventListener("resize", onResize);
       ScrollTrigger.removeEventListener("refresh", onRefresh);
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
-      lenisRef.current = null;
       ScrollTrigger.scrollerProxy(root, {});
       ScrollTrigger.defaults({ scroller: undefined });
       ScrollTrigger.clearScrollMemory();
+      setScrollReady(false);
     };
   }, []);
 
-  return children;
+  return (
+    <ScrollReadyContext.Provider value={scrollReady}>
+      {children}
+    </ScrollReadyContext.Provider>
+  );
 }

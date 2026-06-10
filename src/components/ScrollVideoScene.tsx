@@ -5,8 +5,9 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { pinkYachtVideoSequence } from "@/data/video-frames";
+import { useScrollReady } from "@/lib/scroll-context";
 import { useScrollVideoMp4 } from "@/lib/useScrollVideoMp4";
-import { animateSectionTypography, prefersReducedMotion } from "@/lib/section-motion";
+import { prefersReducedMotion } from "@/lib/section-motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,6 +37,8 @@ export function ScrollVideoScene({
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
+  const scrollReady = useScrollReady();
+  const scrollTriggerId = id ? `${id}-scroll-video` : "scroll-video-scene";
 
   const overlayClass =
     overlay === "hero"
@@ -51,10 +54,13 @@ export function ScrollVideoScene({
     updateFrameFromProgress,
   } = useScrollVideoMp4({
     src: video.src,
+    scrollTriggerId,
   });
 
   useGSAP(
     () => {
+      if (!scrollReady) return;
+
       const section = sectionRef.current;
       const pin = pinRef.current;
       const intro = introRef.current;
@@ -68,35 +74,99 @@ export function ScrollVideoScene({
         return;
       }
 
-      animateSectionTypography(intro, {
-        align,
-        parallax: false,
-      });
+      const eyebrowEl = intro.querySelector<HTMLElement>("[data-motion-eyebrow]");
+      const lines = intro.querySelectorAll<HTMLElement>(
+        "[data-motion-line] .line-inner",
+      );
+      const accentEl = intro.querySelector<HTMLElement>("[data-motion-accent]");
+      const copyEl = intro.querySelector<HTMLElement>("[data-motion-copy]");
+      const origin = align === "right" ? "right center" : "left center";
+      const slideFromX = align === "right" ? 28 : -28;
+
+      if (eyebrowEl) {
+        gsap.set(eyebrowEl, {
+          opacity: 0,
+          x: slideFromX * 0.4,
+          letterSpacing: "0.42em",
+        });
+      }
+      if (lines.length) gsap.set(lines, { yPercent: 110 });
+      if (accentEl) {
+        gsap.set(accentEl, { scaleX: 0, transformOrigin: origin });
+      }
+      if (copyEl) {
+        gsap.set(copyEl, { opacity: 0, y: 28, x: slideFromX * 0.25 });
+      }
 
       const mapProgressToFrames = (progress: number) => {
         updateFrameFromProgress(Math.max(0, Math.min(1, progress)));
       };
 
-      gsap.timeline({
+      const scrollTimeline = gsap.timeline({
         scrollTrigger: {
+          id: scrollTriggerId,
           trigger: section,
           start: "top top",
           end: `+=${Math.round(video.scrollMultiplier * 100)}%`,
           pin: pin,
           scrub: 0.65,
           anticipatePin: 1,
+          invalidateOnRefresh: true,
           onUpdate: (self) => mapProgressToFrames(self.progress),
           onEnter: (self) => mapProgressToFrames(self.progress),
           onRefresh: (self) => mapProgressToFrames(self.progress),
         },
       });
 
+      if (eyebrowEl) {
+        scrollTimeline.to(
+          eyebrowEl,
+          {
+            opacity: 1,
+            x: 0,
+            letterSpacing: "0.28em",
+            duration: 0.08,
+            ease: "power3.out",
+          },
+          0.02,
+        );
+      }
+
+      if (lines.length) {
+        scrollTimeline.to(
+          lines,
+          {
+            yPercent: 0,
+            duration: 0.1,
+            stagger: 0.015,
+            ease: "power3.out",
+          },
+          0.04,
+        );
+      }
+
+      if (accentEl) {
+        scrollTimeline.to(
+          accentEl,
+          { scaleX: 1, duration: 0.07, ease: "power2.out" },
+          0.1,
+        );
+      }
+
+      if (copyEl) {
+        scrollTimeline.to(
+          copyEl,
+          { opacity: 1, y: 0, x: 0, duration: 0.08, ease: "power3.out" },
+          0.12,
+        );
+      }
+
       requestAnimationFrame(() => {
         mapProgressToFrames(0);
         ScrollTrigger.refresh();
       });
     },
-    { scope: sectionRef, dependencies: [video, updateFrameFromProgress, align] },
+    { scope: sectionRef, dependencies: [scrollReady, video, updateFrameFromProgress, align, id] },
   );
 
   return (
@@ -118,8 +188,8 @@ export function ScrollVideoScene({
             playsInline
             preload="auto"
             aria-hidden="true"
-            className={`transition-opacity duration-300 ${
-              isReady ? "opacity-100" : "opacity-0"
+            className={`transition-opacity duration-500 ${
+              isReady ? "opacity-100" : "opacity-40"
             }`}
           />
         </div>
