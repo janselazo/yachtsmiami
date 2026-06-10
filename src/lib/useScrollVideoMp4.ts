@@ -79,7 +79,6 @@ export function useScrollVideoMp4({
       seekVideo(video, 0);
       setIsReady(true);
       syncToScroll();
-      requestAnimationFrame(() => ScrollTrigger.refresh(true));
       onReadyRef.current?.();
     };
 

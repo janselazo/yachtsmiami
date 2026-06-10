@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -50,13 +50,58 @@ export function CombinedScrollVideo({
     scrollTriggerId: "homepage-scroll-video",
   });
 
-  useEffect(() => {
-    if (!isReady) return;
+  useGSAP(
+    () => {
+      if (!scrollReady) return;
 
-    const trigger = ScrollTrigger.getById("homepage-scroll-video");
-    updateFrameFromProgress(trigger?.progress ?? 0);
-    requestAnimationFrame(() => ScrollTrigger.refresh(true));
-  }, [isReady, updateFrameFromProgress]);
+      const lineLight = lineLightRef.current;
+      const lineBold = lineBoldRef.current;
+      const accent = accentRef.current;
+      const subhead = subheadRef.current;
+      const cta = ctaRef.current;
+
+      if (!lineLight || !lineBold || !accent || !subhead || !cta) return;
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      if (reducedMotion) {
+        gsap.set([lineLight, lineBold, accent, subhead, cta], { clearProps: "all" });
+        gsap.set(accent, { scaleX: 1 });
+        return;
+      }
+
+      const introTimeline = gsap.timeline({ delay: 0.1 });
+      introTimeline
+        .from(
+          lineLight,
+          { yPercent: 110, duration: 0.85, ease: "power3.out", immediateRender: false },
+          0,
+        )
+        .from(
+          lineBold,
+          { yPercent: 110, duration: 0.85, ease: "power3.out", immediateRender: false },
+          0.12,
+        )
+        .from(
+          accent,
+          { scaleX: 0, duration: 0.55, ease: "power2.out", immediateRender: false },
+          0.28,
+        )
+        .from(
+          subhead,
+          { opacity: 0, y: 18, duration: 0.55, ease: "power2.out", immediateRender: false },
+          0.38,
+        )
+        .from(
+          cta,
+          { opacity: 0, y: 24, duration: 0.55, ease: "power2.out", immediateRender: false },
+          0.48,
+        );
+    },
+    { scope: sectionRef, dependencies: [scrollReady] },
+  );
 
   useGSAP(
     () => {
@@ -67,24 +112,8 @@ export function CombinedScrollVideo({
       const heroContent = heroContentRef.current;
       const sceneContent = sceneContentRef.current;
       const sceneIntro = sceneIntroRef.current;
-      const lineLight = lineLightRef.current;
-      const lineBold = lineBoldRef.current;
-      const accent = accentRef.current;
-      const subhead = subheadRef.current;
-      const cta = ctaRef.current;
 
-      if (
-        !section ||
-        !pin ||
-        !heroContent ||
-        !sceneContent ||
-        !sceneIntro ||
-        !lineLight ||
-        !lineBold ||
-        !accent ||
-        !subhead ||
-        !cta
-      ) {
+      if (!section || !pin || !heroContent || !sceneContent || !sceneIntro) {
         return;
       }
 
@@ -105,34 +134,12 @@ export function CombinedScrollVideo({
       const sceneSlideX = sceneAlign === "right" ? 28 : -28;
 
       if (reducedMotion) {
-        gsap.set(
-          [
-            lineLight,
-            lineBold,
-            accent,
-            subhead,
-            cta,
-            heroContent,
-            sceneContent,
-            sceneEyebrowEl,
-            ...sceneLines,
-            sceneAccentEl,
-            sceneCopyEl,
-          ].filter(Boolean),
-          { clearProps: "all" },
-        );
-        gsap.set(accent, { scaleX: 1 });
+        gsap.set(sceneContent, { opacity: 1, clearProps: "transform" });
         if (sceneAccentEl) gsap.set(sceneAccentEl, { scaleX: 1 });
-        gsap.set(sceneContent, { opacity: 1 });
         updateFrameFromProgress(0);
         return;
       }
 
-      gsap.set(lineLight, { yPercent: 110 });
-      gsap.set(lineBold, { yPercent: 110 });
-      gsap.set(accent, { scaleX: 0 });
-      gsap.set(subhead, { opacity: 0, y: 18 });
-      gsap.set(cta, { opacity: 0, y: 24 });
       gsap.set(sceneContent, { opacity: 0 });
 
       if (sceneEyebrowEl) {
@@ -154,14 +161,6 @@ export function CombinedScrollVideo({
         });
       }
 
-      const introTimeline = gsap.timeline({ delay: 0.15 });
-      introTimeline
-        .to(lineLight, { yPercent: 0, duration: 0.85, ease: "power3.out" }, 0)
-        .to(lineBold, { yPercent: 0, duration: 0.85, ease: "power3.out" }, 0.12)
-        .to(accent, { scaleX: 1, duration: 0.55, ease: "power2.out" }, 0.28)
-        .to(subhead, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 0.38)
-        .to(cta, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 0.48);
-
       const {
         heroContentOutStart,
         sceneContentInStart,
@@ -177,7 +176,7 @@ export function CombinedScrollVideo({
           start: "top top",
           end: `+=${Math.round(scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: true,
+          scrub: 0.5,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => updateFrameFromProgress(self.progress),
@@ -246,7 +245,11 @@ export function CombinedScrollVideo({
         ScrollTrigger.refresh();
       });
     },
-    { scope: sectionRef, dependencies: [scrollReady, isReady, updateFrameFromProgress, sceneAlign] },
+    {
+      scope: sectionRef,
+      dependencies: [scrollReady, updateFrameFromProgress, sceneAlign],
+      revertOnUpdate: false,
+    },
   );
 
   return (
@@ -268,14 +271,14 @@ export function CombinedScrollVideo({
             playsInline
             preload="auto"
             aria-hidden="true"
-            className={`transition-opacity duration-500 ${
-              isReady ? "opacity-100" : "opacity-40"
+            className={`h-full w-full object-cover transition-opacity duration-700 ${
+              isReady ? "opacity-100" : "opacity-70"
             }`}
           />
         </div>
 
         {loadError ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-ocean-deep/80 px-6 text-center text-sm text-cream-muted">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-ocean-deep/80 px-6 text-center text-sm text-cream-muted">
             Hero video failed to load. Check that{" "}
             <code className="mx-1 text-cream">/video/f3.mp4</code> is deployed.
           </div>

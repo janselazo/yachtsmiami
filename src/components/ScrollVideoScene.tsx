@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -58,14 +58,6 @@ export function ScrollVideoScene({
     preload: "auto",
   });
 
-  useEffect(() => {
-    if (!isReady) return;
-
-    const trigger = ScrollTrigger.getById(scrollTriggerId);
-    updateFrameFromProgress(trigger?.progress ?? 0);
-    requestAnimationFrame(() => ScrollTrigger.refresh(true));
-  }, [isReady, scrollTriggerId, updateFrameFromProgress]);
-
   useGSAP(
     () => {
       if (!scrollReady) return;
@@ -118,7 +110,7 @@ export function ScrollVideoScene({
           start: "top top",
           end: `+=${Math.round(video.scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: true,
+          scrub: 0.5,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => mapProgressToFrames(self.progress),
@@ -175,7 +167,11 @@ export function ScrollVideoScene({
         ScrollTrigger.refresh();
       });
     },
-    { scope: sectionRef, dependencies: [scrollReady, isReady, video, updateFrameFromProgress, align, id] },
+    {
+      scope: sectionRef,
+      dependencies: [scrollReady, video, updateFrameFromProgress, align, id],
+      revertOnUpdate: false,
+    },
   );
 
   return (
@@ -197,8 +193,8 @@ export function ScrollVideoScene({
             playsInline
             preload="auto"
             aria-hidden="true"
-            className={`transition-opacity duration-500 ${
-              isReady ? "opacity-100" : "opacity-40"
+            className={`h-full w-full object-cover transition-opacity duration-700 ${
+              isReady ? "opacity-100" : "opacity-70"
             }`}
           />
         </div>

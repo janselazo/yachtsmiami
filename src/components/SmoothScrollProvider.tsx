@@ -23,7 +23,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     if (prefersReducedMotion) {
       requestAnimationFrame(() => {
         setScrollReady(true);
-        ScrollTrigger.refresh(true);
+        ScrollTrigger.refresh();
       });
       return;
     }
@@ -53,10 +53,10 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
 
     window.addEventListener("resize", onResize);
 
-    requestAnimationFrame(() => {
+    queueMicrotask(() => {
       lenis.resize();
       setScrollReady(true);
-      ScrollTrigger.refresh(true);
+      ScrollTrigger.refresh();
     });
 
     return () => {
@@ -64,7 +64,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       lenis.off("scroll", onScroll);
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
-      ScrollTrigger.refresh(true);
+      ScrollTrigger.refresh();
       setScrollReady(false);
     };
   }, []);
