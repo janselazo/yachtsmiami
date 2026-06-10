@@ -1,0 +1,30 @@
+:root {
+  --color-abyss: #020810;
+  --color-ocean-deep: #031420;
+  --color-ocean-mid: #06324a;
+  --color-ocean: #0a6a9e;
+  --color-ocean-light: #22a3d6;
+  --color-sea-teal: #0d9488;
+  --color-sea-foam: #5eead4;
+  --color-sea-glow: #38bdf8;
+  --color-sea-glow-soft: rgba(56, 189, 248, 0.18);
+  --color-sea-glow-deep: rgba(34, 163, 214, 0.24);
+  --color-cream: #ede6d6;
+  --color-cream-muted: #b8c5d0;
+  --color-gold: #b8924a;
+  --color-gold-soft: #d4b06a;
+  --color-pink: #e879a8;
+  --color-pink-soft: #f4a9c8;
+  --color-overlay: rgba(3, 20, 32, 0.52);
+  --color-overlay-strong: rgba(2, 12, 22, 0.78);
+
+  --font-display: var(--font-outfit), "Outfit", system-ui, sans-serif;
+  --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-pill: 9999px;
+
+  --space-section: clamp(5rem, 12vh, 9rem);
+}

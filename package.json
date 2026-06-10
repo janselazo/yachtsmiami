@@ -1,0 +1,34 @@
+{
+  "name": "yachtsmiami",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:clean": "rm -rf .next && next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "extract-frames": "npm run extract-f3-frames",
+    "extract-f3-frames": "mkdir -p public/video/f3-frames && ffmpeg -y -i video/F3.mov -vf \"fps=30,scale=2560:-2:flags=lanczos,eq=contrast=1.1:brightness=0.04:saturation=1.18,unsharp=7:7:0.65:7:7:0.35\" -q:v 2 public/video/f3-frames/frame_%04d.jpg",
+    "extract-p2-frames": "mkdir -p public/video/p2-frames && ffmpeg -y -i video/P2.mp4 -vf \"fps=30,scale=2560:-2:flags=lanczos,eq=contrast=1.1:brightness=0.05:saturation=1.2,unsharp=7:7:0.65:7:7:0.35\" -q:v 2 public/video/p2-frames/frame_%04d.jpg",
+    "extract-s2-frames": "mkdir -p public/video/s2-frames && ffmpeg -y -i video/S2.mp4 -vf \"fps=30,scale=1920:-2\" -q:v 3 public/video/s2-frames/frame_%04d.jpg"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.23",
+    "next": "15.5.19",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0-preview.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

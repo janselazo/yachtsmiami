@@ -1,0 +1,2 @@
+video/** filter=lfs diff=lfs merge=lfs -text
+public/video/** filter=lfs diff=lfs merge=lfs -text
