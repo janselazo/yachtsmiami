@@ -6,12 +6,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 type UseScrollVideoMp4Options = {
   src: string;
   scrollTriggerId?: string;
+  preload?: "auto" | "metadata" | "none";
   onReady?: () => void;
 };
 
 export function useScrollVideoMp4({
   src,
   scrollTriggerId,
+  preload = "auto",
   onReady,
 }: UseScrollVideoMp4Options) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -75,7 +77,7 @@ export function useScrollVideoMp4({
     setLoadError(false);
     video.muted = true;
     video.playsInline = true;
-    video.preload = "auto";
+    video.preload = preload;
     video.load();
 
     video.addEventListener("loadedmetadata", markReady);
@@ -90,7 +92,7 @@ export function useScrollVideoMp4({
       video.removeEventListener("canplay", markReady);
       video.removeEventListener("error", onError);
     };
-  }, [src, updateFrameFromProgress]);
+  }, [src, preload, updateFrameFromProgress]);
 
   return {
     videoRef,

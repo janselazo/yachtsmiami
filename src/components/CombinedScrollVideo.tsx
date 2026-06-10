@@ -169,7 +169,7 @@ export function CombinedScrollVideo({
           start: "top top",
           end: `+=${Math.round(scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: 0.65,
+          scrub: 0.4,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => updateFrameFromProgress(self.progress),

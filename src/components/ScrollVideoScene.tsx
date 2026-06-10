@@ -55,6 +55,7 @@ export function ScrollVideoScene({
   } = useScrollVideoMp4({
     src: video.src,
     scrollTriggerId,
+    preload: "metadata",
   });
 
   useGSAP(
@@ -109,7 +110,7 @@ export function ScrollVideoScene({
           start: "top top",
           end: `+=${Math.round(video.scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: 0.65,
+          scrub: 0.4,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => mapProgressToFrames(self.progress),
@@ -186,7 +187,7 @@ export function ScrollVideoScene({
             src={video.src}
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             aria-hidden="true"
             className={`transition-opacity duration-500 ${
               isReady ? "opacity-100" : "opacity-40"

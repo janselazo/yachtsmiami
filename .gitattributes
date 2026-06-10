@@ -1,1 +1,2 @@
 public/video/** -filter -diff -merge
+public/images/** -filter -diff -merge

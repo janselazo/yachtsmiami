@@ -19,7 +19,7 @@ export const boats: Boat[] = [
     priceFrom: 850,
     duration: "4 hours",
     highlight: "Perfect for intimate groups and skyline cruises.",
-    image: "/video/Y1.png",
+    image: "/images/fleet/y1.jpg",
   },
   {
     id: "pink-yacht-52",
@@ -29,7 +29,7 @@ export const boats: Boat[] = [
     priceFrom: 1500,
     duration: "4 hours",
     highlight: "Our iconic pink yacht — luxury, style, and party-ready vibes.",
-    image: "/video/Y2-hq.jpg",
+    image: "/images/fleet/y2.jpg",
     featured: true,
   },
   {
@@ -40,7 +40,7 @@ export const boats: Boat[] = [
     priceFrom: 1900,
     duration: "4 hours",
     highlight: "Spacious flybridge for premium day charters and events.",
-    image: "/video/Y3.png",
+    image: "/images/fleet/y3.jpg",
   },
   {
     id: "sunseeker-70",
@@ -50,7 +50,7 @@ export const boats: Boat[] = [
     priceFrom: 2900,
     duration: "4 hours",
     highlight: "Statement luxury for VIP groups and milestone celebrations.",
-    image: "/video/Y1.png",
+    image: "/images/fleet/y1.jpg",
   },
   {
     id: "prestige-60",
@@ -60,7 +60,7 @@ export const boats: Boat[] = [
     priceFrom: 2400,
     duration: "4 hours",
     highlight: "Modern lines, open deck space, and a polished onboard experience.",
-    image: "/video/Y2-hq.jpg",
+    image: "/images/fleet/y2.jpg",
   },
   {
     id: "numarine-80",
@@ -70,6 +70,6 @@ export const boats: Boat[] = [
     priceFrom: 5000,
     duration: "4 hours",
     highlight: "The ultimate Miami charter for large groups and grand occasions.",
-    image: "/video/Y3.png",
+    image: "/images/fleet/y3.jpg",
   },
 ];

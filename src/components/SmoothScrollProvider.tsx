@@ -29,9 +29,10 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     }
 
     const lenis = new Lenis({
-      lerp: 0.1,
+      lerp: 0.14,
       smoothWheel: true,
-      touchMultiplier: 1.2,
+      touchMultiplier: 1.35,
+      wheelMultiplier: 1.05,
     });
 
     const root = document.documentElement;
