@@ -17,6 +17,7 @@ export const brand = {
   instagramHandle: "@2yachtsmiami",
   hours: "Daily · 8am – 10pm",
   logoSrc: "/images/brand/logo.png",
+  yachtIconSrc: "/images/brand/yacht-icon.png",
 } as const;
 
 export const experiences = [
