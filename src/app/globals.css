@@ -306,8 +306,6 @@ img {
   height: 100%;
   width: 100%;
   object-fit: cover;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 .hero-video-overlay {

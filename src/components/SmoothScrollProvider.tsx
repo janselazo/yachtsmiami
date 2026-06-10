@@ -1,10 +1,9 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollReadyContext } from "@/lib/scroll-context";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,31 +12,56 @@ type SmoothScrollProviderProps = {
 };
 
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
-  const [scrollReady, setScrollReady] = useState(false);
+  const lenisRef = useRef<Lenis | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
     if (prefersReducedMotion) {
-      requestAnimationFrame(() => {
-        setScrollReady(true);
-        ScrollTrigger.refresh();
-      });
       return;
     }
 
     const lenis = new Lenis({
-      lerp: 0.14,
+      lerp: 0.1,
       smoothWheel: true,
-      touchMultiplier: 1.35,
-      wheelMultiplier: 1.05,
-      autoRaf: false,
+      touchMultiplier: 1.2,
     });
 
-    const onScroll = () => ScrollTrigger.update();
-    lenis.on("scroll", onScroll);
+    lenisRef.current = lenis;
+
+    const root = document.documentElement;
+
+    ScrollTrigger.defaults({
+      scroller: root,
+    });
+
+    ScrollTrigger.scrollerProxy(root, {
+      scrollTop(value) {
+        if (arguments.length && typeof value === "number") {
+          lenis.scrollTo(value, { immediate: true });
+        }
+        return lenis.scroll;
+      },
+      getBoundingClientRect() {
+        return {
+          top: 0,
+          left: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        };
+      },
+      pinType: root.style.transform ? "transform" : "fixed",
+    });
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const onRefresh = () => {
+      lenis.resize();
+    };
+
+    ScrollTrigger.addEventListener("refresh", onRefresh);
 
     const tickerCallback = (time: number) => {
       lenis.raf(time * 1000);
@@ -46,32 +70,20 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     gsap.ticker.add(tickerCallback);
     gsap.ticker.lagSmoothing(0);
 
-    const onResize = () => {
-      lenis.resize();
-      ScrollTrigger.refresh(true);
-    };
-
-    window.addEventListener("resize", onResize);
-
-    queueMicrotask(() => {
-      lenis.resize();
-      setScrollReady(true);
+    requestAnimationFrame(() => {
       ScrollTrigger.refresh();
     });
 
     return () => {
-      window.removeEventListener("resize", onResize);
-      lenis.off("scroll", onScroll);
+      ScrollTrigger.removeEventListener("refresh", onRefresh);
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
-      ScrollTrigger.refresh();
-      setScrollReady(false);
+      lenisRef.current = null;
+      ScrollTrigger.scrollerProxy(root, {});
+      ScrollTrigger.defaults({ scroller: undefined });
+      ScrollTrigger.clearScrollMemory();
     };
   }, []);
 
-  return (
-    <ScrollReadyContext.Provider value={scrollReady}>
-      {children}
-    </ScrollReadyContext.Provider>
-  );
+  return children;
 }

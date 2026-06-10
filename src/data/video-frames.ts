@@ -2,12 +2,12 @@ import type { FrameSequence } from "@/lib/scroll-video-canvas";
 
 export const homepageVideoSequence = {
   src: "/video/f3.mp4",
-  scrollMultiplier: 4.5,
+  scrollMultiplier: 8,
 } as const;
 
 export const pinkYachtVideoSequence = {
   src: "/video/p2.mp4",
-  scrollMultiplier: 3,
+  scrollMultiplier: 4.5,
 } as const;
 
 /** @deprecated Scroll frames replaced by MP4 scrub on Cloudflare Pages */

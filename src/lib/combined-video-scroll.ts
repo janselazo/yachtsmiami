@@ -1,5 +1,5 @@
 export const homepageVideoScroll = {
-  scrollMultiplier: 4.5,
+  scrollMultiplier: 8,
   /** Hero UI fades out just before the video midpoint */
   heroContentOutStart: 0.44,
   /** Signature copy animates in at the video midpoint */

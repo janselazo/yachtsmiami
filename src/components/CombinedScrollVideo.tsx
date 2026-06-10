@@ -6,7 +6,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { homepageVideoSequence } from "@/data/video-frames";
 import { homepageVideoScroll } from "@/lib/combined-video-scroll";
-import { useScrollReady } from "@/lib/scroll-context";
 import { useScrollVideoMp4 } from "@/lib/useScrollVideoMp4";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -38,7 +37,6 @@ export function CombinedScrollVideo({
   const subheadRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const sceneIntroRef = useRef<HTMLDivElement>(null);
-  const scrollReady = useScrollReady();
 
   const {
     videoRef,
@@ -47,73 +45,33 @@ export function CombinedScrollVideo({
     updateFrameFromProgress,
   } = useScrollVideoMp4({
     src: homepageVideoSequence.src,
-    scrollTriggerId: "homepage-scroll-video",
   });
 
   useGSAP(
     () => {
-      if (!scrollReady) return;
-
+      const section = sectionRef.current;
+      const pin = pinRef.current;
+      const heroContent = heroContentRef.current;
+      const sceneContent = sceneContentRef.current;
+      const sceneIntro = sceneIntroRef.current;
       const lineLight = lineLightRef.current;
       const lineBold = lineBoldRef.current;
       const accent = accentRef.current;
       const subhead = subheadRef.current;
       const cta = ctaRef.current;
 
-      if (!lineLight || !lineBold || !accent || !subhead || !cta) return;
-
-      const reducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
-      if (reducedMotion) {
-        gsap.set([lineLight, lineBold, accent, subhead, cta], { clearProps: "all" });
-        gsap.set(accent, { scaleX: 1 });
-        return;
-      }
-
-      const introTimeline = gsap.timeline({ delay: 0.1 });
-      introTimeline
-        .from(
-          lineLight,
-          { yPercent: 110, duration: 0.85, ease: "power3.out", immediateRender: false },
-          0,
-        )
-        .from(
-          lineBold,
-          { yPercent: 110, duration: 0.85, ease: "power3.out", immediateRender: false },
-          0.12,
-        )
-        .from(
-          accent,
-          { scaleX: 0, duration: 0.55, ease: "power2.out", immediateRender: false },
-          0.28,
-        )
-        .from(
-          subhead,
-          { opacity: 0, y: 18, duration: 0.55, ease: "power2.out", immediateRender: false },
-          0.38,
-        )
-        .from(
-          cta,
-          { opacity: 0, y: 24, duration: 0.55, ease: "power2.out", immediateRender: false },
-          0.48,
-        );
-    },
-    { scope: sectionRef, dependencies: [scrollReady] },
-  );
-
-  useGSAP(
-    () => {
-      if (!scrollReady) return;
-
-      const section = sectionRef.current;
-      const pin = pinRef.current;
-      const heroContent = heroContentRef.current;
-      const sceneContent = sceneContentRef.current;
-      const sceneIntro = sceneIntroRef.current;
-
-      if (!section || !pin || !heroContent || !sceneContent || !sceneIntro) {
+      if (
+        !section ||
+        !pin ||
+        !heroContent ||
+        !sceneContent ||
+        !sceneIntro ||
+        !lineLight ||
+        !lineBold ||
+        !accent ||
+        !subhead ||
+        !cta
+      ) {
         return;
       }
 
@@ -134,12 +92,34 @@ export function CombinedScrollVideo({
       const sceneSlideX = sceneAlign === "right" ? 28 : -28;
 
       if (reducedMotion) {
-        gsap.set(sceneContent, { opacity: 1, clearProps: "transform" });
+        gsap.set(
+          [
+            lineLight,
+            lineBold,
+            accent,
+            subhead,
+            cta,
+            heroContent,
+            sceneContent,
+            sceneEyebrowEl,
+            ...sceneLines,
+            sceneAccentEl,
+            sceneCopyEl,
+          ].filter(Boolean),
+          { clearProps: "all" },
+        );
+        gsap.set(accent, { scaleX: 1 });
         if (sceneAccentEl) gsap.set(sceneAccentEl, { scaleX: 1 });
+        gsap.set(sceneContent, { opacity: 1 });
         updateFrameFromProgress(0);
         return;
       }
 
+      gsap.set(lineLight, { yPercent: 110 });
+      gsap.set(lineBold, { yPercent: 110 });
+      gsap.set(accent, { scaleX: 0 });
+      gsap.set(subhead, { opacity: 0, y: 18 });
+      gsap.set(cta, { opacity: 0, y: 24 });
       gsap.set(sceneContent, { opacity: 0 });
 
       if (sceneEyebrowEl) {
@@ -169,23 +149,26 @@ export function CombinedScrollVideo({
 
       const heroTextSpan = heroContentOutStart - 0.06;
 
-      const scrollTimeline = gsap.timeline({
+      const timeline = gsap.timeline({
         scrollTrigger: {
-          id: "homepage-scroll-video",
           trigger: section,
           start: "top top",
           end: `+=${Math.round(scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: 0.15,
+          scrub: 0.65,
           anticipatePin: 1,
-          invalidateOnRefresh: true,
           onUpdate: (self) => updateFrameFromProgress(self.progress),
           onEnter: (self) => updateFrameFromProgress(self.progress),
           onRefresh: (self) => updateFrameFromProgress(self.progress),
         },
       });
 
-      scrollTimeline
+      timeline
+        .to(lineLight, { yPercent: 0, duration: 0.05, ease: "power3.out" }, 0)
+        .to(lineBold, { yPercent: 0, duration: 0.05, ease: "power3.out" }, 0.05)
+        .to(accent, { scaleX: 1, duration: 0.04, ease: "power2.out" }, 0.11)
+        .to(subhead, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.16)
+        .to(cta, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, 0.21)
         .to(
           heroContent,
           { opacity: 0, y: -24, duration: heroTextSpan, ease: "power2.in" },
@@ -198,7 +181,7 @@ export function CombinedScrollVideo({
         );
 
       if (sceneEyebrowEl) {
-        scrollTimeline.to(
+        timeline.to(
           sceneEyebrowEl,
           {
             opacity: 1,
@@ -212,7 +195,7 @@ export function CombinedScrollVideo({
       }
 
       if (sceneLines.length) {
-        scrollTimeline.to(
+        timeline.to(
           sceneLines,
           {
             yPercent: 0,
@@ -225,7 +208,7 @@ export function CombinedScrollVideo({
       }
 
       if (sceneAccentEl) {
-        scrollTimeline.to(
+        timeline.to(
           sceneAccentEl,
           { scaleX: 1, duration: 0.04, ease: "power2.out" },
           sceneContentInStart + 0.018,
@@ -233,23 +216,17 @@ export function CombinedScrollVideo({
       }
 
       if (sceneCopyEl) {
-        scrollTimeline.to(
+        timeline.to(
           sceneCopyEl,
           { opacity: 1, y: 0, x: 0, duration: 0.05, ease: "power3.out" },
           sceneContentInStart + 0.024,
         );
       }
 
-      requestAnimationFrame(() => {
-        updateFrameFromProgress(0);
-        ScrollTrigger.refresh();
-      });
+      requestAnimationFrame(() => updateFrameFromProgress(0));
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
-    {
-      scope: sectionRef,
-      dependencies: [scrollReady, updateFrameFromProgress, sceneAlign],
-      revertOnUpdate: false,
-    },
+    { scope: sectionRef, dependencies: [updateFrameFromProgress, sceneAlign] },
   );
 
   return (
@@ -266,19 +243,18 @@ export function CombinedScrollVideo({
         <div className="hero-video-media">
           <video
             ref={videoRef}
-            src={homepageVideoSequence.src}
             muted
             playsInline
             preload="auto"
             aria-hidden="true"
-            className={`h-full w-full object-cover ${
-              isReady ? "opacity-100" : "opacity-70"
+            className={`transition-opacity duration-300 ${
+              isReady ? "opacity-100" : "opacity-0"
             }`}
           />
         </div>
 
         {loadError ? (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-ocean-deep/80 px-6 text-center text-sm text-cream-muted">
+          <div className="absolute inset-0 flex items-center justify-center bg-ocean-deep/80 px-6 text-center text-sm text-cream-muted">
             Hero video failed to load. Check that{" "}
             <code className="mx-1 text-cream">/video/f3.mp4</code> is deployed.
           </div>
