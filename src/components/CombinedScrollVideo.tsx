@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -49,6 +49,14 @@ export function CombinedScrollVideo({
     src: homepageVideoSequence.src,
     scrollTriggerId: "homepage-scroll-video",
   });
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    const trigger = ScrollTrigger.getById("homepage-scroll-video");
+    updateFrameFromProgress(trigger?.progress ?? 0);
+    requestAnimationFrame(() => ScrollTrigger.refresh(true));
+  }, [isReady, updateFrameFromProgress]);
 
   useGSAP(
     () => {
@@ -169,7 +177,7 @@ export function CombinedScrollVideo({
           start: "top top",
           end: `+=${Math.round(scrollMultiplier * 100)}%`,
           pin: pin,
-          scrub: 0.4,
+          scrub: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => updateFrameFromProgress(self.progress),
@@ -238,7 +246,7 @@ export function CombinedScrollVideo({
         ScrollTrigger.refresh();
       });
     },
-    { scope: sectionRef, dependencies: [scrollReady, updateFrameFromProgress, sceneAlign] },
+    { scope: sectionRef, dependencies: [scrollReady, isReady, updateFrameFromProgress, sceneAlign] },
   );
 
   return (

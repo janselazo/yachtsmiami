@@ -10,6 +10,21 @@ type UseScrollVideoMp4Options = {
   onReady?: () => void;
 };
 
+function seekVideo(video: HTMLVideoElement, time: number) {
+  const clamped = Math.max(0, Math.min(time, video.duration || time));
+
+  if (typeof video.fastSeek === "function") {
+    try {
+      video.fastSeek(clamped);
+      return;
+    } catch {
+      // fall through to currentTime
+    }
+  }
+
+  video.currentTime = clamped;
+}
+
 export function useScrollVideoMp4({
   src,
   scrollTriggerId,
@@ -35,8 +50,8 @@ export function useScrollVideoMp4({
     if (!video || !isReadyRef.current || !duration) return;
 
     const target = Math.max(0, Math.min(1, progress)) * duration;
-    if (Math.abs(video.currentTime - target) > 0.03) {
-      video.currentTime = target;
+    if (Math.abs(video.currentTime - target) > 0.001) {
+      seekVideo(video, target);
     }
   }, []);
 
@@ -46,6 +61,13 @@ export function useScrollVideoMp4({
 
     let cancelled = false;
 
+    const syncToScroll = () => {
+      const triggerId = scrollTriggerIdRef.current;
+      if (!triggerId) return;
+      const trigger = ScrollTrigger.getById(triggerId);
+      updateFrameFromProgress(trigger?.progress ?? 0);
+    };
+
     const markReady = () => {
       if (cancelled || !Number.isFinite(video.duration) || video.duration <= 0) {
         return;
@@ -54,16 +76,10 @@ export function useScrollVideoMp4({
       durationRef.current = video.duration;
       isReadyRef.current = true;
       video.pause();
-      video.currentTime = 0;
+      seekVideo(video, 0);
       setIsReady(true);
-
-      const triggerId = scrollTriggerIdRef.current;
-      if (triggerId) {
-        const trigger = ScrollTrigger.getById(triggerId);
-        updateFrameFromProgress(trigger?.progress ?? 0);
-        requestAnimationFrame(() => ScrollTrigger.refresh());
-      }
-
+      syncToScroll();
+      requestAnimationFrame(() => ScrollTrigger.refresh(true));
       onReadyRef.current?.();
     };
 
@@ -77,6 +93,7 @@ export function useScrollVideoMp4({
     setLoadError(false);
     video.muted = true;
     video.playsInline = true;
+    video.setAttribute("webkit-playsinline", "true");
     video.preload = preload;
     video.load();
 

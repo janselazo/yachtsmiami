@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost, Montserrat } from "next/font/google";
 import "./globals.css";
+import "lenis/dist/lenis.css";
 import { brand } from "@/data/brand";
 
 const jost = Jost({

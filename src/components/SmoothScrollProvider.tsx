@@ -23,7 +23,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     if (prefersReducedMotion) {
       requestAnimationFrame(() => {
         setScrollReady(true);
-        ScrollTrigger.refresh();
+        ScrollTrigger.refresh(true);
       });
       return;
     }
@@ -33,39 +33,11 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       smoothWheel: true,
       touchMultiplier: 1.35,
       wheelMultiplier: 1.05,
+      autoRaf: false,
     });
 
-    const root = document.documentElement;
-
-    ScrollTrigger.defaults({
-      scroller: root,
-    });
-
-    ScrollTrigger.scrollerProxy(root, {
-      scrollTop(value) {
-        if (arguments.length && typeof value === "number") {
-          lenis.scrollTo(value, { immediate: true });
-        }
-        return lenis.scroll;
-      },
-      getBoundingClientRect() {
-        return {
-          top: 0,
-          left: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-        };
-      },
-      pinType: root.style.transform ? "transform" : "fixed",
-    });
-
-    lenis.on("scroll", ScrollTrigger.update);
-
-    const onRefresh = () => {
-      lenis.resize();
-    };
-
-    ScrollTrigger.addEventListener("refresh", onRefresh);
+    const onScroll = () => ScrollTrigger.update();
+    lenis.on("scroll", onScroll);
 
     const tickerCallback = (time: number) => {
       lenis.raf(time * 1000);
@@ -74,22 +46,25 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     gsap.ticker.add(tickerCallback);
     gsap.ticker.lagSmoothing(0);
 
-    requestAnimationFrame(() => {
-      setScrollReady(true);
-      ScrollTrigger.refresh();
-    });
+    const onResize = () => {
+      lenis.resize();
+      ScrollTrigger.refresh(true);
+    };
 
-    const onResize = () => ScrollTrigger.refresh();
     window.addEventListener("resize", onResize);
+
+    requestAnimationFrame(() => {
+      lenis.resize();
+      setScrollReady(true);
+      ScrollTrigger.refresh(true);
+    });
 
     return () => {
       window.removeEventListener("resize", onResize);
-      ScrollTrigger.removeEventListener("refresh", onRefresh);
+      lenis.off("scroll", onScroll);
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
-      ScrollTrigger.scrollerProxy(root, {});
-      ScrollTrigger.defaults({ scroller: undefined });
-      ScrollTrigger.clearScrollMemory();
+      ScrollTrigger.refresh(true);
       setScrollReady(false);
     };
   }, []);
