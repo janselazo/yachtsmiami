@@ -11,7 +11,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 gsap.registerPlugin(ScrollTrigger);
 
 export function JetSkiSection() {
-  const { locale, t } = useLanguage();
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -46,7 +46,7 @@ export function JetSkiSection() {
         },
       );
     },
-    { scope: sectionRef, dependencies: [locale] },
+    { scope: sectionRef },
   );
 
   return (

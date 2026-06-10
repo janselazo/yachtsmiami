@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -94,8 +94,22 @@ export function ScrollVideoScene({
         ScrollTrigger.refresh();
       });
     },
-    { scope: sectionRef, dependencies: [sequence, updateFrameFromProgress, align, locale] },
+    { scope: sectionRef, dependencies: [sequence, updateFrameFromProgress, align] },
   );
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const trigger = ScrollTrigger.getAll().find(
+      (entry) => entry.trigger === section,
+    );
+
+    requestAnimationFrame(() => {
+      updateFrameFromProgress(trigger?.progress ?? 0);
+      ScrollTrigger.refresh();
+    });
+  }, [locale, updateFrameFromProgress]);
 
   return (
     <section

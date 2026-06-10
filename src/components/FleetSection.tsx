@@ -134,7 +134,7 @@ export function FleetSection({
         },
       );
     },
-    { scope: sectionRef, dependencies: [locale] },
+    { scope: sectionRef },
   );
 
   return (

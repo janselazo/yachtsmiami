@@ -13,7 +13,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 gsap.registerPlugin(ScrollTrigger);
 
 export function ExperienceSection() {
-  const { locale, t } = useLanguage();
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -52,7 +52,7 @@ export function ExperienceSection() {
       const cards = list.querySelectorAll<HTMLElement>("[data-experience]");
       animateExperienceCards(list, cards);
     },
-    { scope: sectionRef, dependencies: [locale] },
+    { scope: sectionRef },
   );
 
   return (

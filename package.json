@@ -11,8 +11,7 @@
     "extract-frames": "npm run extract-f3-frames",
     "extract-scroll-frames": "npm run extract-f3-frames && npm run extract-p2-frames",
     "extract-f3-frames": "mkdir -p public/video/f3-frames && ffmpeg -y -i public/video/f3.mp4 -vf \"fps=30,scale=1280:-2:flags=lanczos\" -q:v 6 public/video/f3-frames/frame_%04d.jpg",
-    "extract-p2-frames": "mkdir -p public/video/p2-frames && ffmpeg -y -i public/video/p2.mp4 -vf \"fps=30,scale=1280:-2:flags=lanczos\" -q:v 6 public/video/p2-frames/frame_%04d.jpg",
-    "extract-s2-frames": "mkdir -p public/video/s2-frames && ffmpeg -y -i video/S2.mp4 -vf \"fps=30,scale=1920:-2\" -q:v 3 public/video/s2-frames/frame_%04d.jpg"
+    "extract-p2-frames": "mkdir -p public/video/p2-frames && ffmpeg -y -i public/video/p2.mp4 -vf \"fps=30,scale=1280:-2:flags=lanczos\" -q:v 6 public/video/p2-frames/frame_%04d.jpg"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

@@ -59,7 +59,7 @@ export function BookingSection({
   selectedBoatId,
   onBoatChange,
 }: BookingSectionProps) {
-  const { locale, t } = useLanguage();
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const [form, setForm] = useState<BookingFormState>({
@@ -105,7 +105,7 @@ export function BookingSection({
       if (!intro) return;
       animateSectionTypography(intro);
     },
-    { scope: sectionRef, dependencies: [locale] },
+    { scope: sectionRef },
   );
 
   return (

@@ -8,7 +8,11 @@ import {
   useMemo,
   useSyncExternalStore,
 } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { translations, type Locale, type Translations } from "@/i18n/translations";
+
+gsap.registerPlugin(ScrollTrigger);
 
 type LanguageContextValue = {
   locale: Locale;
@@ -64,6 +68,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale;
     document.title = translations[locale].meta.title;
+    requestAnimationFrame(() => ScrollTrigger.refresh());
   }, [locale]);
 
   const value = useMemo(
