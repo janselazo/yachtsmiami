@@ -2,9 +2,29 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Deploy on Cloudflare Pages
 
-**Important:** Do not retry old failed deployments. Deploy the latest commit on `main` (`2f3eb68` or newer).
+### Why deploys keep failing on `30d1fe2`
 
-In **Workers & Pages → your project → Settings → Builds & deployments**:
+If your log shows `HEAD is now at 30d1fe2` and `video/ZV.mp4 is 25.5 MiB`, Cloudflare is **retrying an old deployment**, not building latest `main`. That commit still contains the oversized source files and has no build step.
+
+**Do not click Retry** on failed deployments. Either:
+
+1. **GitHub Actions (recommended)** — set secrets below and push to `main`; the workflow builds `out/` and deploys the latest commit.
+2. **Cloudflare dashboard** — Deployments → **Create deployment** on branch `main` (latest commit), with build settings below.
+
+### GitHub Actions setup (one time)
+
+In GitHub → **Settings → Secrets and variables → Actions**, add:
+
+| Secret | Where to get it |
+|--------|-----------------|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare dashboard → My Profile → API Tokens → Create Token → **Edit Cloudflare Workers** template (include Pages) |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare dashboard → Workers & Pages → right sidebar **Account ID** |
+
+Then push to `main`. Check the **Actions** tab for the deploy workflow.
+
+### Cloudflare dashboard build settings
+
+If you use Git integration instead of GitHub Actions:
 
 | Setting | Value |
 |---------|-------|
@@ -13,8 +33,6 @@ In **Workers & Pages → your project → Settings → Builds & deployments**:
 | **Build output directory** | `out` |
 | **Root directory** | `/` |
 | **Node.js version** | `20` |
-
-Or match the repo `wrangler.toml` (`pages_build_output_dir = "./out"`).
 
 Production videos live in `public/video/` only. The local `video/` folder is gitignored and never deployed.
 
